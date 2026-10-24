@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>El Viaje Musical de Falla</title>
+    <!-- Tailwind CSS para la interfaz de usuario -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tone.js para el audio procedural (sin dependencias externas de archivos) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <!-- Fuentes para estilo cómic -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden; /* Evita el scroll nativo */
+            background-color: #87CEEB; /* Color inicial del cielo */
+            font-family: 'Inter', sans-serif;
+            touch-action: none; /* Previene gestos táctiles del navegador en móviles */
+            user-select: none;
+        }
+        canvas {
+            display: block;
+        }
+        .comic-font {
+            font-family: 'Fredoka One', cursive;
+        }
+        /* Estilos para los controles táctiles en dispositivos móviles */
+        .touch-btn {
+            background: rgba(255, 255, 255, 0.4);
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(4px);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            color: #333;
+            user-select: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+        }
+        .touch-btn:active {
+            background: rgba(255, 255, 255, 0.6);
+            transform: scale(0.90);
+        }
+        /* Estilo clásico de bocadillo de cómic (Bruguera/Ibáñez) */
+        .bocadillo {
+            position: relative;
+            background: #ffffff;
+            border: 4px solid #000;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 6px 6px 0px rgba(0,0,0,0.8);
+        }
+        .bocadillo::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50px;
+            border-width: 20px 20px 0 0;
+            border-style: solid;
+            border-color: #ffffff transparent transparent transparent;
+            z-index: 1;
+        }
+        .bocadillo::before {
+            content: '';
+            position: absolute;
+            bottom: -26px;
+            left: 46px;
+            border-width: 26px 26px 0 0;
+            border-style: solid;
+            border-color: #000 transparent transparent transparent;
+            z-index: 0;
+        }
+        /* Botones estilo cómic */
+        .btn-comic {
+            border: 4px solid black;
+            box-shadow: 4px 4px 0px rgba(0,0,0,1);
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        .btn-comic:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px rgba(0,0,0,1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========================================== -->
+    <!-- INTERFAZ DE USUARIO (HTML/Tailwind)        -->
+    <!-- ========================================== -->
+    <div id="ui-layer" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300">
+        
+        <!-- PANTALLA DE INICIO -->
+        <div id="screen-start" class="flex flex-col items-center max-w-lg mx-4">
+            <div class="bocadillo mb-8 text-center w-full">
+                <h1 class="text-4xl comic-font text-blue-600 mb-2">El Viaje Musical</h1>
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">de Manuel de Falla</h2>
+                <p class="text-gray-700 mb-4 text-lg">¡Acompaña a Don Manuel desde Cádiz hasta Argentina! Recoge notas musicales y sortea los obstáculos rítmicos.</p>
+                <div class="bg-blue-50 border-2 border-blue-200 rounded p-3 mb-6">
+                    <p class="text-sm font-bold text-blue-800">Controles (PC): ⬅️ ➡️ para moverte | ⬆️, W o ESPACIO para saltar.</p>
+                </div>
+                <button id="btn-start" class="btn-comic w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-4 px-6 rounded-xl text-xl">
+                    ¡COMENZAR AVENTURA!
+                </button>
+            </div>
+            <div class="flex gap-4 text-4xl">🎼 🌊 🎹 🇦🇷</div>
+        </div>
+
+        <!-- PANTALLA DE HITOS (Niveles completados) -->
+        <div id="screen-milestone" class="hidden flex-col items-center max-w-md mx-4">
+            <div class="bocadillo mb-8 text-center w-full">
+                <h2 id="milestone-title" class="text-3xl comic-font text-green-600 mb-4">¡Nivel Completado!</h2>
+                <p id="milestone-text" class="text-xl font-bold text-gray-800 mb-8 leading-snug"></p>
+                <button id="btn-continue" class="btn-comic w-full bg-green-400 hover:bg-green-500 text-black font-bold py-4 px-6 rounded-xl text-xl">
+                    CONTINUAR
+                </button>
+            </div>
+        </div>
+
+        <!-- PANTALLA DE GAME OVER -->
+        <div id="screen-gameover" class="hidden flex-col items-center max-w-sm mx-4">
+            <div class="bocadillo mb-8 text-center w-full border-red-500">
+                <h2 class="text-4xl comic-font text-red-600 mb-4">¡Oh no!</h2>
+                <p class="text-gray-700 mb-8 font-bold text-lg">La música se ha detenido...</p>
+                <div class="flex flex-col gap-4">
+                    <!-- Botón clave para retener a los niños: conserva puntos y restaura vidas -->
+                    <button id="btn-retry-level" class="btn-comic w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-3 px-6 rounded-xl">
+                        REINTENTAR NIVEL
+                    </button>
+                    <!-- Reinicio duro -->
+                    <button id="btn-restart-all" class="btn-comic w-full bg-red-400 hover:bg-red-500 text-white font-bold py-3 px-6 rounded-xl">
+                        VOLVER AL INICIO
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HUD: Puntuación y Vidas (Siempre visible mientras se juega) -->
+    <div id="hud" class="fixed top-0 left-0 w-full p-4 flex justify-between items-start z-40 pointer-events-none hidden">
+        <div class="bg-white/90 border-4 border-black rounded-xl px-4 py-2 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+            <span class="comic-font text-2xl text-yellow-500 drop-shadow-md">🎵 <span id="score" class="text-black">0</span></span>
+        </div>
+        <div class="bg-white/90 border-4 border-black rounded-xl px-4 py-2 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+            <span class="comic-font text-2xl text-red-500 drop-shadow-md">❤️ <span id="lives" class="text-black">3</span></span>
+        </div>
+    </div>
+
+    <!-- CONTROLES TÁCTILES (Solo visibles en móviles/tablets) -->
+    <div id="mobile-controls" class="fixed bottom-6 left-0 w-full px-6 flex justify-between z-40 hidden sm:hidden">
+        <div class="flex gap-4">
+            <button id="btn-left" class="touch-btn w-16 h-16">◀</button>
+            <button id="btn-right" class="touch-btn w-16 h-16">▶</button>
+        </div>
+        <div>
+            <!-- Botón de salto más grande para accesibilidad infantil -->
+            <button id="btn-jump" class="touch-btn w-20 h-20 bg-blue-400/50">▲</button>
+        </div>
+    </div>
+
+    <!-- CANVAS DEL JUEGO -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- ========================================== -->
+    <!-- LÓGICA DEL JUEGO (JavaScript)              -->
+    <!-- ========================================== -->
+    <script>
+        // --- 1. CONFIGURACIÓN INICIAL ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let GAME_STATE = 'START'; // Estados posibles: START, PLAYING, MILESTONE, GAMEOVER
+        let currentLevel = 1;
+        let score = 0;
+        let lives = 3;
+        
+        let lastTime = 0;
+        let deltaTime = 0;
+
+        // Cámara de scroll lateral
+        const camera = { x: 0, y: 0 };
+
+        // Entradas de teclado
+        const keys = { right: false, left: false, up: false };
+
+        // --- 2. SISTEMA DE AUDIO (Tone.js) ---
+        let synth, jumpSynth, coinSynth, damageSynth, bgmLoop;
+        let isAudioInitialized = false;
+
+        async function initAudio() {
+            if (isAudioInitialized) return;
+            await Tone.start();
+            
+            // Música de fondo
+            synth = new Tone.PolySynth(Tone.Synth, {
+                envelope: { attack: 0.05, decay: 0.2, sustain: 0.1, release: 1 }
+            }).toDestination();
+            synth.volume.value = -12;
+
+            // Efecto Salto
+            jumpSynth = new Tone.Synth({
+                oscillator: { type: 'sine' },
+                envelope: { attack: 0.01, decay: 0.2, sustain: 0, release: 0 }
+            }).toDestination();
+            jumpSynth.volume.value = -10;
+
+            // Efecto Coleccionable (CRÍTICO: PolySynth para evitar crasheos por superposición)
+            coinSynth = new Tone.PolySynth(Tone.Synth, {
+                oscillator: { type: 'triangle' },
+                envelope: { attack: 0.01, decay: 0.1, sustain: 0, release: 0.1 }
+            }).toDestination();
+            coinSynth.volume.value = -8;
+
+            // Efecto Daño
+            damageSynth = new Tone.MembraneSynth().toDestination();
+            damageSynth.volume.value = -5;
+
+            isAudioInitialized = true;
+            playBGM();
+        }
+
+        function playSound(type) {
+            if (!isAudioInitialized) return;
+            const now = Tone.now(); // Reloj nativo de Tone.js
+            
+            // Bloque try/catch crítico para evitar interrupciones (scheduling collisions)
+            try {
+                if (type === 'jump') {
+                    jumpSynth.triggerAttackRelease("G4", "8n", now);
+                } else if (type === 'coin') {
+                    // Se programan notas consecutivas seguras usando el reloj interno, NO setTimeout
+                    coinSynth.triggerAttackRelease("C6", "16n", now);
+                    coinSynth.triggerAttackRelease("E6", "16n", now + 0.1);
+                } else if (type === 'damage') {
+                    damageSynth.triggerAttackRelease("C2", "8n", now);
+                } else if (type === 'milestone') {
+                    synth.triggerAttackRelease(["C4", "E4", "G4", "C5"], "2n", now);
+                }
+            } catch (error) {
+                console.warn("Sonido omitido por colisión temporal:", error);
+            }
+        }
+
+        function playBGM() {
+            if (!isAudioInitialized || !synth) return;
+            if (bgmLoop) bgmLoop.dispose();
+            
+            // Melodías temáticas según el nivel
+            const notesL1 = ["C4", "E4", "F4", "G4", "E4", "C4", "G3", "C4"]; // Andalucía: Alegre
+            const notesL2 = ["D4", "F4", "A4", "C5", "A4", "F4", "D4", "A3"]; // Atlántida: Misterioso
+            const notesL3 = ["G4", "B4", "D5", "G5", "D5", "B4", "G4", "D4"]; // Argentina: Triunfal
+            
+            let currentNotes = currentLevel === 1 ? notesL1 : (currentLevel === 2 ? notesL2 : notesL3);
+            let index = 0;
+
+            bgmLoop = new Tone.Loop(time => {
+                if (GAME_STATE === 'PLAYING' && synth) {
+                    synth.triggerAttackRelease(currentNotes[index], "8n", time);
+                    index = (index + 1) % currentNotes.length;
+                }
+            }, "4n").start(0);
+            
+            // Cambio de tempo procedimental
+            Tone.Transport.bpm.value = currentLevel === 2 ? 100 : 140; // Nado (L2) es más pausado
+            Tone.Transport.start();
+        }
+
+        // --- 3. ENTIDADES Y LÓGICA DEL PROTAGONISTA ---
+        const player = {
+            x: 100, y: 300, w: 40, h: 60,
+            vx: 0, vy: 0,
+            speed: 7,          // Velocidad lateral (ajustada para saltos cómodos)
+            jumpPower: -15,    // Potencia de salto (robusta)
+            gravity: 0.6,      // Gravedad normal
+            grounded: false,
+            invulnerable: 0,
+            facingRight: true, // Dirección de la mirada para el renderizado
+            
+            reset(startX) {
+                this.x = startX;
+                this.y = 300;
+                this.vx = 0;
+                this.vy = 0;
+                this.invulnerable = 0;
+                this.facingRight = true;
+
+                // Físicas específicas por nivel
+                if (currentLevel === 2) { // Nivel Submarino
+                    this.gravity = 0.2;   // Flotabilidad
+                    this.jumpPower = -6;  // Pequeños impulsos para nadar
+                    this.w = 60;          // Dimensiones más anchas para el submarino
+                    this.h = 50;
+                } else {                  // Nivel Terrestre (L1, L3)
+                    this.gravity = 0.6;   
+                    this.jumpPower = -15; 
+                    this.w = 40;
+                    this.h = 60;
+                }
+            },
+
+            update() {
+                // Control horizontal
+                if (keys.right) {
+                    this.vx = this.speed;
+                    this.facingRight = true;
+                }
+                else if (keys.left) {
+                    this.vx = -this.speed;
+                    this.facingRight = false;
+                }
+                else {
+                    this.vx = 0;
+                }
+
+                // Evitar retroceder fuera de la cámara
+                if (this.x + this.vx < camera.x) {
+                    this.x = camera.x;
+                    this.vx = 0;
+                }
+
+                this.x += this.vx;
+
+                // Temporizador de invulnerabilidad
+                if (this.invulnerable > 0) this.invulnerable -= deltaTime;
+
+                // Control vertical (Salto / Nado)
+                if (keys.up) {
+                    if (currentLevel === 2) { 
+                        // Mecánica de Nado: Impulsos continuos, pero requiere soltar la tecla
+                        this.vy = this.jumpPower;
+                        keys.up = false; 
+                        playSound('jump');
+                    } else if (this.grounded) { 
+                        // Salto terrestre: Solo desde el suelo
+                        this.vy = this.jumpPower;
+                        this.grounded = false;
+                        playSound('jump');
+                    }
+                }
+
+                // Aplicar gravedad
+                this.vy += this.gravity;
+                this.y += this.vy;
+                
+                // Reiniciar estado grounded en cada frame antes de colisiones
+                this.grounded = false; 
+
+                // Límites letales (Foso)
+                if (this.y > canvas.height + 150) {
+                    takeDamage(true); // El true fuerza la pérdida de vida pese a invulnerabilidad
+                }
+                
+                // Techo acuático para nivel 2
+                if (currentLevel === 2 && this.y < 0) {
+                    this.y = 0;
+                    this.vy = 0;
+                }
+            },
+
+            draw(ctx) {
+                // Efecto de parpadeo si es invulnerable
+                if (this.invulnerable > 0 && Math.floor(Date.now() / 100) % 2 === 0) return; 
+
+                ctx.save();
+                
+                // Coordenadas relativas a la cámara
+                const screenX = this.x - camera.x;
+                const screenY = this.y - camera.y;
+
+                // Trasladar origen al centro del jugador para aplicar rotaciones/escalas
+                ctx.translate(screenX + this.w/2, screenY + this.h/2);
+                
+                // Voltear horizontalmente si mira a la izquierda
+                if (!this.facingRight) {
+                    ctx.scale(-1, 1);
+                }
+
+                // Coordenadas locales para el dibujo (-mitad, -mitad)
+                const cx = -this.w/2;
+                const cy = -this.h/2;
+
+                if (currentLevel === 2) {
+                    // DIBUJO: SUBMARINO BLUE-BOT (Con Falla dentro)
+                    
+                    // Cuerpo azul del submarino
+                    ctx.fillStyle = '#3b82f6';
+                    ctx.beginPath();
+                    ctx.ellipse(cx + this.w/2, cy + this.h/2, this.w/2, this.h/2.5, 0, 0, Math.PI*2);
+                    ctx.fill();
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = '#1e3a8a';
+                    ctx.stroke();
+
+                    // Orugas/Ruedas inferiores
+                    ctx.fillStyle = '#333';
+                    ctx.fillRect(cx + 10, cy + this.h - 10, this.w - 20, 10);
+                    ctx.fillStyle = '#555';
+                    for(let i=0; i<3; i++) {
+                        ctx.beginPath();
+                        ctx.arc(cx + 15 + (i*15), cy + this.h - 5, 4, 0, Math.PI*2);
+                        ctx.fill();
+                    }
+
+                    // Domo de cristal
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                    ctx.beginPath();
+                    ctx.arc(cx + this.w/2, cy + this.h/4 + 5, this.w/3 + 2, Math.PI, 0);
+                    ctx.fill();
+                    ctx.stroke();
+                    
+                    // Cabeza de Falla (estilo cómic Bruguera) asomando
+                    ctx.fillStyle = '#f5cba7'; // Piel
+                    ctx.beginPath();
+                    ctx.ellipse(cx + this.w/2, cy + this.h/4, 8, 10, 0, 0, Math.PI*2);
+                    ctx.fill();
+                    // Pelo lateral
+                    ctx.fillStyle = '#4a4a4a';
+                    ctx.beginPath();
+                    ctx.arc(cx + this.w/2 - 7, cy + this.h/4, 3, Math.PI/2, Math.PI*1.5);
+                    ctx.fill();
+                    // Gafas icónicas
+                    ctx.strokeStyle = '#222';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.arc(cx + this.w/2 - 2, cy + this.h/4 - 2, 3, 0, Math.PI*2);
+                    ctx.arc(cx + this.w/2 + 4, cy + this.h/4 - 2, 3, 0, Math.PI*2);
+                    ctx.stroke();
+                    // Sonrisa
+                    ctx.strokeStyle = '#884444';
+                    ctx.beginPath();
+                    ctx.arc(cx + this.w/2 + 2, cy + this.h/4 + 4, 2, 0, Math.PI);
+                    ctx.stroke();
+
+                    // Hélice trasera
+                    ctx.fillStyle = '#fbbf24';
+                    ctx.fillRect(cx - 8, cy + this.h/2 - 8, 8, 16);
+                    ctx.beginPath();
+                    ctx.ellipse(cx - 10, cy + this.h/2, 4, 12, 0, 0, Math.PI*2);
+                    ctx.fill();
+
+                } else {
+                    // DIBUJO: MANUEL DE FALLA (Estilo Cómic / Tierra)
+                    
+                    // Cabeza
+                    ctx.fillStyle = '#f5cba7'; 
+                    ctx.beginPath();
+                    ctx.ellipse(cx + this.w/2, cy + 12, 12, 15, 0, 0, Math.PI*2);
+                    ctx.fill();
+                    // Oreja
+                    ctx.beginPath();
+                    ctx.arc(cx + this.w/2 - 12, cy + 12, 3, 0, Math.PI*2);
+                    ctx.fill();
+                    // Pelo (Entradas)
+                    ctx.fillStyle = '#4a4a4a';
+                    ctx.beginPath();
+                    ctx.arc(cx + this.w/2 - 10, cy + 12, 4, Math.PI/2, Math.PI*1.5);
+                    ctx.fill();
+                    // Nariz
+                    ctx.fillStyle = '#e5b38f';
+                    ctx.beginPath();
+                    ctx.arc(cx + this.w/2 + 6, cy + 13, 3, 0, Math.PI*2);
+                    ctx.fill();
+                    // Gafas redondas
+                    ctx.strokeStyle = '#222';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.arc(cx + this.w/2 - 3, cy + 9, 4, 0, Math.PI*2);
+                    ctx.arc(cx + this.w/2 + 5, cy + 9, 4, 0, Math.PI*2);
+                    ctx.stroke();
+                    // Sonrisa
+                    ctx.strokeStyle = '#884444';
+                    ctx.beginPath();
+                    ctx.arc(cx + this.w/2 + 3, cy + 17, 3, 0.2, Math.PI - 0.2);
+                    ctx.stroke();
+
+                    // Traje (Esmoquin)
+                    ctx.fillStyle = '#1a1a1a';
+                    ctx.beginPath();
+                    ctx.moveTo(cx + 8, cy + 25);
+                    ctx.lineTo(cx + this.w - 8, cy + 25);
+                    ctx.lineTo(cx + this.w, cy + this.h - 5);
+                    ctx.lineTo(cx, cy + this.h - 5);
+                    ctx.fill();
+                    // Camisa blanca
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.moveTo(cx + this.w/2 - 4, cy + 25);
+                    ctx.lineTo(cx + this.w/2 + 4, cy + 25);
+                    ctx.lineTo(cx + this.w/2, cy + 35);
+                    ctx.fill();
+                    // Pajarita roja (un toque de color)
+                    ctx.fillStyle = '#ef4444';
+                    ctx.beginPath();
+                    ctx.moveTo(cx + this.w/2, cy + 28);
+                    ctx.lineTo(cx + this.w/2 - 5, cy + 25);
+                    ctx.lineTo(cx + this.w/2 - 5, cy + 31);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.moveTo(cx + this.w/2, cy + 28);
+                    ctx.lineTo(cx + this.w/2 + 5, cy + 25);
+                    ctx.lineTo(cx + this.w/2 + 5, cy + 31);
+                    ctx.fill();
+
+                    // Brazos
+                    ctx.strokeStyle = '#1a1a1a';
+                    ctx.lineWidth = 5;
+                    ctx.lineCap = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(cx + 10, cy + 30);
+                    ctx.lineTo(cx - 2, cy + 40); // Brazo izquierdo atrás
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(cx + this.w - 10, cy + 30);
+                    ctx.lineTo(cx + this.w + 5, cy + 38); // Brazo derecho adelante
+                    ctx.stroke();
+
+                    // Batuta (La magia musical)
+                    ctx.strokeStyle = '#fef08a'; // Color madera claro
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(cx + this.w + 5, cy + 38);
+                    ctx.lineTo(cx + this.w + 20, cy + 25);
+                    ctx.stroke();
+                }
+                
+                ctx.restore();
+            }
+        };
+
+        // --- 4. GESTIÓN DEL ENTORNO (Niveles y Colisiones) ---
+        let platforms = [];
+        let items = [];
+        let enemies = [];
+        let levelGoal = 0;
+
+        function generateLevel(level) {
+            platforms = [];
+            items = [];
+            enemies = [];
+            
+            let currentX = 0;
+            const floorY = canvas.height - 50;
+
+            if (level === 1) { 
+                // NIVEL 1: CÁDIZ / ANDALUCÍA
+                document.body.style.backgroundColor = '#38bdf8'; // Cielo azul brillante
+                
+                // Plataforma inicial segura
+                platforms.push({ x: 0, y: floorY, w: 600, h: 50, type: 'grass' });
+                currentX = 600;
+
+                while (currentX < 3500) {
+                    currentX += 80 + Math.random() * 80; 
+                    
+                    let pWidth = 180 + Math.random() * 250;
+                    let pY = floorY - (Math.random() * 120);
+                    
+                    platforms.push({ x: currentX, y: pY, w: pWidth, h: 100, type: 'grass' });
+                    
+                    // Separamos coleccionables (al 30% de la plataforma) y enemigos (al 70%)
+                    if (Math.random() > 0.3) {
+                        items.push({ x: currentX + (pWidth * 0.3), y: pY - 40, w: 25, h: 25, type: 'note' });
+                    }
+                    if (Math.random() > 0.5 && currentX > 800) {
+                        enemies.push({ x: currentX + (pWidth * 0.7), y: pY - 35, w: 35, h: 30, type: 'cloud' });
+                    }
+
+                    currentX += pWidth;
+                }
+                levelGoal = 3800;
+                platforms.push({ x: currentX, y: floorY, w: 800, h: 50, type: 'grass' });
+                items.push({ x: levelGoal - 100, y: floorY - 60, w: 40, h: 40, type: 'score' }); // Meta
+
+            } else if (level === 2) { 
+                // NIVEL 2: LA ATLÁNTIDA (Submarino)
+                document.body.style.backgroundColor = '#0369a1'; // Océano profundo
+                
+                platforms.push({ x: 0, y: floorY, w: 400, h: 50, type: 'sand' });
+                currentX = 400;
+
+                while (currentX < 4000) {
+                    let gap = 250 + Math.random() * 100;
+                    currentX += gap;
+                    
+                    let colY = 100 + Math.random() * (canvas.height - 300);
+                    
+                    platforms.push({ x: currentX, y: colY + 140, w: 60, h: canvas.height, type: 'column' }); // Abajo
+                    platforms.push({ x: currentX, y: -50, w: 60, h: colY - 50, type: 'column' });            // Arriba
+
+                    // Ítem al principio del hueco
+                    items.push({ x: currentX + 30, y: colY + 45, w: 25, h: 25, type: 'note' });
+                    
+                    // Enemigo al final del hueco, evitando solapamiento
+                    if (Math.random() > 0.3) {
+                        enemies.push({ x: currentX + 150, y: colY + 20, w: 40, h: 40, type: 'jellyfish' });
+                    }
+                }
+                levelGoal = 4300;
+                platforms.push({ x: currentX, y: floorY, w: 800, h: 50, type: 'sand' });
+                items.push({ x: levelGoal - 100, y: canvas.height/2, w: 40, h: 40, type: 'score' });
+
+            } else if (level === 3) { 
+                // NIVEL 3: ARGENTINA (Montañas Nevadas)
+                document.body.style.backgroundColor = '#bae6fd'; // Cielo celeste argentino
+                
+                platforms.push({ x: 0, y: floorY, w: 400, h: 50, type: 'rock' });
+                currentX = 400;
+                let lastY = floorY;
+
+                while (currentX < 4500) {
+                    currentX += 70 + Math.random() * 70;
+                    let pWidth = 150 + Math.random() * 150; // Plataformas un poco más anchas
+                    
+                    lastY -= (30 + Math.random() * 60);
+                    if (lastY < 150) lastY = floorY - 50; 
+                    
+                    platforms.push({ x: currentX, y: lastY, w: pWidth, h: 100, type: 'rock' });
+                    
+                    // Separación estricta: Notas a la izquierda (25%), Nubes a la derecha (75%)
+                    items.push({ x: currentX + (pWidth * 0.25), y: lastY - 40, w: 25, h: 25, type: 'note' });
+                    
+                    if (Math.random() > 0.4) {
+                        enemies.push({ x: currentX + (pWidth * 0.75), y: lastY - 35, w: 35, h: 30, type: 'cloud' });
+                    }
+                    
+                    currentX += pWidth;
+                }
+                levelGoal = 4800;
+                platforms.push({ x: currentX, y: lastY, w: 800, h: 50, type: 'rock' });
+                items.push({ x: levelGoal - 100, y: lastY - 60, w: 40, h: 40, type: 'score' });
+            }
+        }
+
+        function checkCollision(a, b) {
+            return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+        }
+
+        function resolvePlatformCollisions() {
+            for (let p of platforms) {
+                if (checkCollision(player, p)) {
+                    // Colisiones (AABB Simplificadas)
+                    
+                    // Detección de suelo (cayendo sobre la plataforma)
+                    if (player.vy > 0 && player.y + player.h - player.vy <= p.y + 15) {
+                        player.grounded = true;
+                        player.y = p.y - player.h;
+                        player.vy = 0;
+                    } 
+                    // Detección de techo (golpeando la cabeza, útil en las columnas de nivel 2)
+                    else if (player.vy < 0 && player.y - player.vy >= p.y + p.h - 15) {
+                        player.y = p.y + p.h;
+                        player.vy = 0;
+                    }
+                    // Detección de muros laterales
+                    else {
+                        if (player.vx > 0) player.x = p.x - player.w;
+                        else if (player.vx < 0) player.x = p.x + p.w;
+                        player.vx = 0;
+                    }
+                }
+            }
+        }
+
+        function checkItemAndEnemyCollisions() {
+            // Colisiones con Coleccionables
+            for (let i = items.length - 1; i >= 0; i--) {
+                let it = items[i];
+                if (checkCollision(player, it)) {
+                    playSound('coin');
+                    score += it.type === 'score' ? 50 : 10;
+                    items.splice(i, 1);
+                    updateHUD();
+                }
+            }
+
+            // Colisiones con Enemigos
+            for (let e of enemies) {
+                let hitY = e.y;
+                if (e.type === 'jellyfish') {
+                    hitY = e.y + Math.sin(Date.now() / 300 + e.x) * 25; // Hitbox dinámico
+                }
+                if (checkCollision(player, { x: e.x, y: hitY, w: e.w, h: e.h })) {
+                    takeDamage();
+                }
+            }
+        }
+
+        function takeDamage(instantKill = false) {
+            if (player.invulnerable > 0 && !instantKill) return;
+            
+            playSound('damage');
+            lives--;
+            updateHUD();
+            
+            if (lives <= 0) {
+                setGameState('GAMEOVER');
+            } else {
+                // Respawn seguro cerca del progreso actual
+                player.y = 50;
+                player.x = Math.max(0, camera.x + 100);
+                player.vy = 0;
+                player.invulnerable = 2000; // 2 segundos de gracia
+            }
+        }
+
+        // --- 5. RENDERIZADO DEL ENTORNO ---
+        function drawEnvironment() {
+            // DIBUJO DEL FONDO PARALLAX SEGÚN EL NIVEL
+            if (currentLevel === 1) {
+                // FONDO CÁDIZ / ANDALUCÍA
+                // Sol
+                ctx.fillStyle = '#fde047';
+                ctx.beginPath(); ctx.arc(canvas.width - 150, 100, 60, 0, Math.PI*2); ctx.fill();
+                
+                // Silueta de la ciudad (estilo Cádiz)
+                const bgOffset = (camera.x * 0.15) % 1000;
+                for(let i = -1; i < 4; i++) {
+                    let startX = i * 1000 - bgOffset;
+                    
+                    // Casas blancas
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(startX + 100, canvas.height - 250, 200, 250);
+                    ctx.fillRect(startX + 300, canvas.height - 180, 150, 180);
+                    ctx.fillRect(startX + 500, canvas.height - 220, 180, 220);
+                    
+                    // Cúpula amarilla (inspirada en la Catedral)
+                    ctx.fillStyle = '#facc15';
+                    ctx.beginPath(); ctx.arc(startX + 200, canvas.height - 250, 70, Math.PI, 0); ctx.fill();
+                    // Torreta
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(startX + 550, canvas.height - 300, 40, 80);
+                    ctx.fillStyle = '#facc15';
+                    ctx.beginPath(); ctx.arc(startX + 570, canvas.height - 300, 20, Math.PI, 0); ctx.fill();
+                }
+            } 
+            else if (currentLevel === 2) {
+                // FONDO ATLÁNTIDA (Submarino)
+                // Burbujas
+                ctx.fillStyle = 'rgba(255,255,255,0.2)';
+                const bubbleOffset = (camera.x * 0.2) % 200;
+                for(let i=0; i<15; i++) {
+                    ctx.beginPath(); ctx.arc(i*150 - bubbleOffset, 80 + Math.sin(i)*60, 30 + (i%2)*20, 0, Math.PI*2); ctx.fill();
+                }
+
+                // Siluetas de Ruinas de la Atlántida al fondo
+                ctx.fillStyle = '#0f172a'; // Azul muy oscuro
+                const bgOffset2 = (camera.x * 0.1) % 800;
+                for(let i = -1; i < 4; i++) {
+                    let startX = i * 800 - bgOffset2;
+                    // Templo de fondo
+                    ctx.fillRect(startX + 100, canvas.height - 350, 300, 350);
+                    ctx.beginPath(); ctx.arc(startX + 250, canvas.height - 350, 150, Math.PI, 0); ctx.fill();
+                    // Columnatas rotas
+                    ctx.fillRect(startX + 500, canvas.height - 200, 40, 200);
+                    ctx.fillRect(startX + 600, canvas.height - 250, 40, 250);
+                }
+            } 
+            else if (currentLevel === 3) {
+                // FONDO ARGENTINA (Cordillera de los Andes)
+                // Sol de Mayo (simplificado)
+                ctx.fillStyle = '#fde047';
+                ctx.beginPath(); ctx.arc(120, 100, 50, 0, Math.PI*2); ctx.fill();
+                
+                // Cordillera
+                const bgOffset3 = (camera.x * 0.1) % 1200;
+                for(let i = -1; i < 3; i++) {
+                    let startX = i * 1200 - bgOffset3;
+                    
+                    // Montaña 1
+                    ctx.fillStyle = '#94a3b8'; // Gris
+                    ctx.beginPath();
+                    ctx.moveTo(startX, canvas.height);
+                    ctx.lineTo(startX + 300, canvas.height - 450); // Pico
+                    ctx.lineTo(startX + 600, canvas.height);
+                    ctx.fill();
+                    
+                    // Nieve Montaña 1
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.moveTo(startX + 200, canvas.height - 300);
+                    ctx.lineTo(startX + 300, canvas.height - 450);
+                    ctx.lineTo(startX + 400, canvas.height - 300);
+                    ctx.lineTo(startX + 300, canvas.height - 250); // Pico invertido
+                    ctx.fill();
+
+                    // Montaña 2 (más pequeña, detrás)
+                    ctx.fillStyle = '#64748b'; // Gris más oscuro
+                    ctx.beginPath();
+                    ctx.moveTo(startX + 400, canvas.height);
+                    ctx.lineTo(startX + 650, canvas.height - 350); // Pico
+                    ctx.lineTo(startX + 900, canvas.height);
+                    ctx.fill();
+                    
+                    // Nieve Montaña 2
+                    ctx.fillStyle = '#f8fafc';
+                    ctx.beginPath();
+                    ctx.moveTo(startX + 540, canvas.height - 200);
+                    ctx.lineTo(startX + 650, canvas.height - 350);
+                    ctx.lineTo(startX + 760, canvas.height - 200);
+                    ctx.lineTo(startX + 650, canvas.height - 150);
+                    ctx.fill();
+                }
+            }
+
+            // Dibujar Plataformas
+            for (let p of platforms) {
+                if (p.x + p.w < camera.x || p.x > camera.x + canvas.width) continue; // Culling
+                
+                const cx = p.x - camera.x;
+                const cy = p.y - camera.y;
+
+                if (p.type === 'grass') {
+                    ctx.fillStyle = '#65a30d'; // Verde
+                    ctx.fillRect(cx, cy, p.w, 15);
+                    ctx.fillStyle = '#854d0e'; // Marrón
+                    ctx.fillRect(cx, cy+15, p.w, p.h-15);
+                } else if (p.type === 'column') {
+                    ctx.fillStyle = '#94a3b8'; // Piedra azulada
+                    ctx.fillRect(cx, cy, p.w, p.h);
+                    ctx.strokeStyle = '#475569';
+                    ctx.lineWidth = 4;
+                    ctx.strokeRect(cx, cy, p.w, p.h);
+                } else if (p.type === 'rock') {
+                    ctx.fillStyle = '#475569'; // Roca
+                    ctx.fillRect(cx, cy, p.w, p.h);
+                    ctx.fillStyle = '#f8fafc'; // Nieve superior
+                    ctx.fillRect(cx, cy, p.w, 12);
+                } else {
+                    ctx.fillStyle = '#b45309'; // Arena/Fondo base
+                    ctx.fillRect(cx, cy, p.w, p.h);
+                }
+            }
+
+            // Dibujar Coleccionables
+            for (let i = items.length - 1; i >= 0; i--) {
+                let it = items[i];
+                if (it.x + it.w < camera.x || it.x > camera.x + canvas.width) continue;
+                
+                const cx = it.x - camera.x;
+                const cy = it.y - camera.y;
+                const floatY = Math.sin(Date.now() / 200 + it.x) * 5; // Animación flotante
+
+                ctx.font = it.type === 'score' ? "35px Arial" : "25px Arial";
+                ctx.fillText(it.type === 'score' ? "🎼" : "🎵", cx, cy + floatY + it.h);
+            }
+
+            // Dibujar Enemigos
+            for (let e of enemies) {
+                if (e.x + e.w < camera.x || e.x > camera.x + canvas.width) continue;
+                
+                const cx = e.x - camera.x;
+                const cy = e.y - camera.y;
+
+                ctx.font = "35px Arial";
+                if (e.type === 'cloud') {
+                    ctx.fillText("🌩️", cx, cy + e.h);
+                } else if (e.type === 'jellyfish') {
+                    const move = Math.sin(Date.now() / 300 + e.x) * 25;
+                    ctx.fillText("🪼", cx, cy + e.h + move);
+                }
+            }
+        }
+
+        // --- 6. BUCLE PRINCIPAL DEL JUEGO ---
+        function update(timestamp) {
+            if (!lastTime) lastTime = timestamp;
+            deltaTime = timestamp - lastTime;
+            lastTime = timestamp;
+
+            if (GAME_STATE === 'PLAYING') {
+                player.update();
+                resolvePlatformCollisions();
+                checkItemAndEnemyCollisions();
+
+                // Lógica de Cámara fluida
+                let targetCamX = player.x - canvas.width / 3;
+                camera.x += (targetCamX - camera.x) * 0.1;
+                if (camera.x < 0) camera.x = 0; // Prevenir mirar atrás del límite 0
+
+                // Condición de victoria del nivel
+                if (player.x > levelGoal) {
+                    triggerMilestone();
+                }
+            }
+
+            draw();
+            requestAnimationFrame(update);
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (GAME_STATE === 'START') return;
+            drawEnvironment();
+            // Mantener a Falla visible incluso en Game Over o Transición
+            if (GAME_STATE === 'PLAYING' || GAME_STATE === 'MILESTONE' || GAME_STATE === 'GAMEOVER') {
+                player.draw(ctx);
+            }
+        }
+
+        // --- 7. CONTROLADORES DE ESTADO (UI y Eventos) ---
+        const uiLayer = document.getElementById('ui-layer');
+        const screenStart = document.getElementById('screen-start');
+        const screenMilestone = document.getElementById('screen-milestone');
+        const screenGameOver = document.getElementById('screen-gameover');
+        const hud = document.getElementById('hud');
+        const mobileControls = document.getElementById('mobile-controls');
+
+        function updateHUD() {
+            document.getElementById('score').innerText = score;
+            document.getElementById('lives').innerText = lives;
+        }
+
+        function setGameState(state) {
+            GAME_STATE = state;
+            
+            // Ocultar modales por defecto
+            uiLayer.classList.remove('hidden');
+            screenStart.classList.add('hidden');
+            screenMilestone.classList.add('hidden');
+            screenGameOver.classList.add('hidden');
+            
+            if (state === 'PLAYING') {
+                uiLayer.classList.add('hidden');
+                hud.classList.remove('hidden');
+                // Detectar móviles para UI táctil
+                if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+                    mobileControls.classList.remove('hidden');
+                }
+            } else if (state === 'START') {
+                screenStart.classList.remove('hidden');
+                hud.classList.add('hidden');
+                mobileControls.classList.add('hidden');
+            } else if (state === 'GAMEOVER') {
+                screenGameOver.classList.remove('hidden');
+                mobileControls.classList.add('hidden');
+            } else if (state === 'MILESTONE') {
+                screenMilestone.classList.remove('hidden');
+                mobileControls.classList.add('hidden');
+            }
+        }
+
+        function startGame(level, isRetry = false) {
+            // Al hacer clic, aseguramos el AudioContext
+            initAudio(); 
+            
+            currentLevel = level;
+            
+            // Lógica estricta de reinicio de estado según el botón
+            if (!isRetry) {
+                // Nuevo Juego: Reseteo total
+                score = 0;
+                lives = 3;
+            } else {
+                // Reintentar Nivel: Mantiene puntos, restaura vidas garantizadas
+                lives = 3;
+            }
+            
+            updateHUD();
+            player.reset(100);
+            camera.x = 0; camera.y = 0;
+            
+            generateLevel(currentLevel);
+            
+            // Retraso seguro para reproducir BGM si el contexto acaba de inicializarse
+            setTimeout(playBGM, 100); 
+            setGameState('PLAYING');
+        }
+
+        function triggerMilestone() {
+            setGameState('MILESTONE');
+            playSound('milestone');
+            
+            const titleEl = document.getElementById('milestone-title');
+            const textEl = document.getElementById('milestone-text');
+            const btnEl = document.getElementById('btn-continue');
+
+            if (currentLevel === 1) {
+                titleEl.innerText = "¡Hito 1 Alcanzado!";
+                textEl.innerText = "¡Magia impresionista! Con 'Noches en los jardines de España', Falla captura la luz y el aroma de Andalucía.";
+                btnEl.innerText = "VIAJAR A LA ATLÁNTIDA";
+            } else if (currentLevel === 2) {
+                titleEl.innerText = "¡Hito 2 Alcanzado!";
+                textEl.innerText = "¡Fuego y pasión! El ritmo de 'El amor brujo' hace bailar hasta a las criaturas de las profundidades.";
+                btnEl.innerText = "ASCENDER A ARGENTINA";
+            } else {
+                titleEl.innerText = "¡Victoria Final!";
+                textEl.innerText = "¡El sueño cumbre! 'La Atlántida', la cantata monumental que une mitos y continentes desde Alta Gracia. ¡Gracias por jugar!";
+                btnEl.innerText = "JUGAR DE NUEVO";
+            }
+        }
+
+        // Listeners de UI
+        document.getElementById('btn-start').addEventListener('click', () => startGame(1, false));
+        document.getElementById('btn-retry-level').addEventListener('click', () => startGame(currentLevel, true));
+        document.getElementById('btn-restart-all').addEventListener('click', () => startGame(1, false));
+        document.getElementById('btn-continue').addEventListener('click', () => {
+            if (currentLevel >= 3) startGame(1, false);
+            else startGame(currentLevel + 1, false);
+        });
+
+        // Controles de Teclado
+        window.addEventListener('keydown', e => {
+            if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = true;
+            if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = true;
+            if (e.code === 'ArrowUp' || e.code === 'Space' || e.code === 'KeyW') keys.up = true;
+        });
+        window.addEventListener('keyup', e => {
+            if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = false;
+            if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = false;
+            if (e.code === 'ArrowUp' || e.code === 'Space' || e.code === 'KeyW') keys.up = false;
+        });
+
+        // Controles Táctiles (Optimizados con preventDefault para evitar zoom/scroll accidental)
+        const addTouch = (elemId, key) => {
+            const el = document.getElementById(elemId);
+            el.addEventListener('touchstart', (e) => { e.preventDefault(); keys[key] = true; }, {passive: false});
+            el.addEventListener('touchend', (e) => { e.preventDefault(); keys[key] = false; }, {passive: false});
+        };
+        addTouch('btn-right', 'right');
+        addTouch('btn-left', 'left');
+        addTouch('btn-jump', 'up');
+
+        // Responsividad Total del Canvas
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        
+        // Inicialización
+        resize();
+        requestAnimationFrame(update);
+
+    </script>
+</body>
+</html>
