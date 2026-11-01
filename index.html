@@ -624,11 +624,13 @@
         // --- 4. GESTIÓN DEL ENTORNO (Niveles y Colisiones) ---
         let platforms = [];
         let items = [];
+        let enemies = [];
         let levelGoal = 0;
 
         function generateLevel(level) {
             platforms = [];
             items = [];
+            enemies = [];
             const floorY = canvas.height - 50;
             let floorType;
 
@@ -661,6 +663,11 @@
                     });
                 }
 
+                for (let x = 220; x < levelGoal - 150; x += 600) {
+                    const step = Math.floor(x / stepRun);
+                    enemies.push({ x, y: floorY - step * stepRise - 44, w: 48, h: 44, level });
+                }
+
                 for (let x = 500; x < levelGoal - 200; x += 500) {
                     const step = Math.floor(x / stepRun);
                     items.push({ x, y: floorY - step * stepRise - 70, w: 25, h: 25, type: 'note' });
@@ -670,7 +677,7 @@
             } else {
                 platforms.push({ x: 0, y: floorY, w: levelGoal + canvas.width, h: 50, type: floorType });
                 for (let x = 650; x < levelGoal - 150; x += 550) {
-                    platforms.push({ x, y: floorY - 44, w: 48, h: 44, type: 'obstacle', level });
+                    enemies.push({ x, y: floorY - 44, w: 48, h: 44, level });
                 }
                 for (let x = 500; x < levelGoal - 200; x += 500) {
                     items.push({ x, y: floorY - 70, w: 25, h: 25, type: 'note' });
@@ -719,6 +726,12 @@
                     items.splice(i, 1);
                     updateHUD();
                 }
+            }
+        }
+
+        function checkEnemyCollisions() {
+            for (const enemy of enemies) {
+                if (checkCollision(player, enemy)) takeDamage();
             }
         }
 
@@ -846,16 +859,7 @@
                 const cx = p.x - camera.x;
                 const cy = p.y - camera.y;
 
-                if (p.type === 'obstacle') {
-                    const obstacleColors = ['#b45309', '#0e7490', '#64748b'];
-                    ctx.fillStyle = obstacleColors[p.level - 1];
-                    ctx.fillRect(cx, cy, p.w, p.h);
-                    ctx.strokeStyle = '#111827';
-                    ctx.lineWidth = 3;
-                    ctx.strokeRect(cx, cy, p.w, p.h);
-                    ctx.fillStyle = p.level === 3 ? '#f8fafc' : 'rgba(255,255,255,0.35)';
-                    ctx.fillRect(cx + 4, cy + 5, p.w - 8, 8);
-                } else if (p.type === 'grass') {
+                if (p.type === 'grass') {
                     ctx.fillStyle = '#65a30d'; // Verde
                     ctx.fillRect(cx, cy, p.w, 15);
                     ctx.fillStyle = '#854d0e'; // Marrón
@@ -875,6 +879,96 @@
                     ctx.fillStyle = '#b45309'; // Arena/Fondo base
                     ctx.fillRect(cx, cy, p.w, p.h);
                 }
+            }
+
+            for (const enemy of enemies) {
+                if (enemy.x + enemy.w < camera.x || enemy.x > camera.x + canvas.width) continue;
+
+                const x = enemy.x - camera.x;
+                const y = enemy.y - camera.y;
+                const centerX = x + enemy.w / 2;
+                const bottom = y + enemy.h;
+                const animation = Date.now() / 180 + enemy.x;
+                const wobble = Math.sin(animation) * 3;
+
+                ctx.save();
+                if (enemy.level === 1) {
+                    ctx.translate(centerX, bottom);
+                    ctx.shadowColor = '#fb923c';
+                    ctx.shadowBlur = 12;
+
+                    ctx.fillStyle = '#ef4444';
+                    ctx.strokeStyle = '#7f1d1d';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(-20, 0);
+                    ctx.quadraticCurveTo(-27, -16, -12, -30 + wobble);
+                    ctx.quadraticCurveTo(-13, -17, -6, -22);
+                    ctx.quadraticCurveTo(2, -34 - wobble, 8, -43);
+                    ctx.quadraticCurveTo(18, -28, 12, -19);
+                    ctx.quadraticCurveTo(24, -23, 22, -9);
+                    ctx.quadraticCurveTo(20, 0, 12, 0);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+
+                    ctx.fillStyle = '#fde047';
+                    ctx.beginPath();
+                    ctx.moveTo(-11, 0);
+                    ctx.quadraticCurveTo(-13, -12, -4, -20 + wobble / 2);
+                    ctx.quadraticCurveTo(-2, -11, 5, -27);
+                    ctx.quadraticCurveTo(14, -12, 10, 0);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.fillStyle = '#7f1d1d';
+                    ctx.beginPath();
+                    ctx.arc(-3, -13, 1.5, 0, Math.PI * 2);
+                    ctx.arc(6, -13, 1.5, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (enemy.level === 2) {
+                    ctx.translate(centerX, y + enemy.h / 2 + wobble);
+                    ctx.fillStyle = 'rgba(56, 189, 248, 0.3)';
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, 23, 17, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = '#bae6fd';
+                    ctx.lineWidth = 5;
+                    ctx.lineCap = 'round';
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 15, animation % (Math.PI * 2), animation % (Math.PI * 2) + Math.PI * 1.55);
+                    ctx.stroke();
+                    ctx.strokeStyle = '#38bdf8';
+                    ctx.lineWidth = 4;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 7, -animation, -animation + Math.PI * 1.5);
+                    ctx.stroke();
+                    ctx.fillStyle = '#e0f2fe';
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                } else {
+                    ctx.translate(centerX, y + enemy.h / 2 + wobble);
+                    ctx.strokeStyle = '#38bdf8';
+                    ctx.lineWidth = 5;
+                    ctx.lineCap = 'round';
+                    for (let streak = 0; streak < 3; streak++) {
+                        const offsetY = (streak - 1) * 12;
+                        const offsetX = Math.sin(animation + streak) * 3;
+                        ctx.globalAlpha = 0.75 - streak * 0.12;
+                        ctx.beginPath();
+                        ctx.moveTo(-25 + offsetX, offsetY);
+                        ctx.quadraticCurveTo(-5, offsetY - 7, 7, offsetY);
+                        ctx.quadraticCurveTo(17, offsetY + 6, 25, offsetY - 2);
+                        ctx.stroke();
+                    }
+                    ctx.globalAlpha = 1;
+                    ctx.fillStyle = '#e0f2fe';
+                    ctx.beginPath();
+                    ctx.arc(-9, -4, 2, 0, Math.PI * 2);
+                    ctx.arc(-1, -4, 2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.restore();
             }
 
             // Dibujar Coleccionables
@@ -901,6 +995,7 @@
             if (GAME_STATE === 'PLAYING') {
                 player.update();
                 resolvePlatformCollisions();
+                checkEnemyCollisions();
                 checkItemCollisions();
 
                 // Lógica de Cámara fluida
