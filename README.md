@@ -21,9 +21,9 @@ Con un encantador estilo visual inspirado en el tebeo clásico español (tipo Br
 
 El juego cuenta con tres fases generadas de forma procedimental, cada una con sus propios fondos *parallax*, gravedades y mecánicas:
 
-1.  🇪🇸 **Nivel 1: Andalucía.** Plataformas terrestres bajo el Sol y la silueta de Cádiz. Inspirado en *Noches en los jardines de España*.
-2.  🌊 **Nivel 2: La Atlántida.** Falla pilotea su icónico **Submarino Blue-Bot**. Mecánica de nado (flotabilidad), esquivando medusas entre las ruinas sumergidas de los palacios de cristal. Inspirado en *El amor brujo*.
-3.  🇦🇷 **Nivel 3: Argentina (Alta Gracia).** Escalada de plataformas montañosas bajo los gélidos picos de la Cordillera de los Andes. Inspirado en la cantata monumental *La Atlántida*.
+1.  🇪🇸 **Nivel 1: Andalucía.** Un recorrido sin precipicios ni obstáculos bajo el Sol y la silueta de Cádiz. Inspirado en *Noches en los jardines de España*.
+2.  🌊 **Nivel 2: La Atlántida.** Falla pilotea su icónico **Submarino Blue-Bot** en un recorrido submarino despejado. Inspirado en *El amor brujo*.
+3.  🇦🇷 **Nivel 3: Argentina (Alta Gracia).** Un camino despejado bajo los gélidos picos de la Cordillera de los Andes. Inspirado en la cantata monumental *La Atlántida*.
 
 ## 🎮 Controles
 
@@ -32,7 +32,7 @@ El juego cuenta con tres fases generadas de forma procedimental, cada una con su
 *   **Saltar / Nadar:** `Flecha Arriba`, `W` o `Barra Espaciadora`
 
 ### Dispositivos Móviles (Tablets / Smartphones)
-*   El juego detecta pantallas táctiles y muestra automáticamente botones virtuales en la parte inferior de la pantalla para el movimiento lateral y el salto.
+*   El juego detecta pantallas táctiles y muestra automáticamente botones virtuales en el lado derecho de la pantalla para el movimiento lateral y el salto.
 
 ## 🚀 Cómo Jugar / Instalación
 
@@ -58,7 +58,7 @@ El archivo HTML está dividido en tres secciones claramente comentadas para faci
 2.  **Estructura HTML (UI Layer):** Pantallas superpuestas, HUD de vidas/puntuación y botones usando clases utilitarias de Tailwind.
 3.  **`<script>` (Lógica Core):**
     *   Configuración y Audio (Contexto Tone.js).
-    *   Entidades (`player`, `platforms`, `items`, `enemies`).
+    *   Entidades (`player`, `platforms`, `items`).
     *   Motor de Físicas y Colisiones.
     *   Renderizado de Entorno y Fondos Parallax.
     *   Bucle Principal (`update` & `draw`).

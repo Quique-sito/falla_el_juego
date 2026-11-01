@@ -105,7 +105,7 @@
             <div class="bocadillo mb-8 text-center w-full">
                 <h1 class="text-4xl comic-font text-blue-600 mb-2">El Viaje Musical</h1>
                 <h2 class="text-2xl font-bold text-gray-800 mb-4">de Manuel de Falla</h2>
-                <p class="text-gray-700 mb-4 text-lg">¡Acompaña a Don Manuel desde Cádiz hasta Argentina! Recoge notas musicales y sortea los obstáculos rítmicos.</p>
+                <p class="text-gray-700 mb-4 text-lg">¡Acompaña a Don Manuel desde Cádiz hasta Argentina! Recorre el camino sin obstáculos y recoge notas musicales.</p>
                 <div class="bg-blue-50 border-2 border-blue-200 rounded p-3 mb-6">
                     <p class="text-sm font-bold text-blue-800">Controles (PC): ⬅️ ➡️ para moverte | ⬆️, W o ESPACIO para saltar.</p>
                 </div>
@@ -175,15 +175,12 @@
     </div>
 
     <!-- CONTROLES TÁCTILES (Solo visibles en móviles/tablets) -->
-    <div id="mobile-controls" class="fixed bottom-6 left-0 w-full px-6 flex justify-between z-40 hidden sm:hidden">
-        <div class="flex gap-4">
+    <div id="mobile-controls" class="fixed right-4 top-1/2 -translate-y-1/2 flex flex-col items-center gap-3 z-40 hidden">
+        <div class="flex flex-col gap-3">
             <button id="btn-left" class="touch-btn w-16 h-16">◀</button>
             <button id="btn-right" class="touch-btn w-16 h-16">▶</button>
         </div>
-        <div>
-            <!-- Botón de salto más grande para accesibilidad infantil -->
-            <button id="btn-jump" class="touch-btn w-20 h-20 bg-blue-400/50">▲</button>
-        </div>
+        <button id="btn-jump" class="touch-btn w-20 h-20 bg-blue-400/50">▲</button>
     </div>
 
     <!-- CANVAS DEL JUEGO -->
@@ -558,105 +555,33 @@
         // --- 4. GESTIÓN DEL ENTORNO (Niveles y Colisiones) ---
         let platforms = [];
         let items = [];
-        let enemies = [];
         let levelGoal = 0;
 
         function generateLevel(level) {
             platforms = [];
             items = [];
-            enemies = [];
-            
-            let currentX = 0;
             const floorY = canvas.height - 50;
+            let floorType;
 
-            if (level === 1) { 
-                // NIVEL 1: CÁDIZ / ANDALUCÍA
+            if (level === 1) {
                 document.body.style.backgroundColor = '#38bdf8'; // Cielo azul brillante
-                
-                // Plataforma inicial segura
-                platforms.push({ x: 0, y: floorY, w: 600, h: 50, type: 'grass' });
-                currentX = 600;
-
-                while (currentX < 3500) {
-                    currentX += 80 + Math.random() * 80; 
-                    
-                    let pWidth = 180 + Math.random() * 250;
-                    let pY = floorY - (Math.random() * 120);
-                    
-                    platforms.push({ x: currentX, y: pY, w: pWidth, h: 100, type: 'grass' });
-                    
-                    // Separamos coleccionables (al 30% de la plataforma) y enemigos (al 70%)
-                    if (Math.random() > 0.3) {
-                        items.push({ x: currentX + (pWidth * 0.3), y: pY - 40, w: 25, h: 25, type: 'note' });
-                    }
-                    if (Math.random() > 0.5 && currentX > 800) {
-                        enemies.push({ x: currentX + (pWidth * 0.7), y: pY - 35, w: 35, h: 30, type: 'cloud' });
-                    }
-
-                    currentX += pWidth;
-                }
+                floorType = 'grass';
                 levelGoal = 3800;
-                platforms.push({ x: currentX, y: floorY, w: 800, h: 50, type: 'grass' });
-                items.push({ x: levelGoal - 100, y: floorY - 60, w: 40, h: 40, type: 'score' }); // Meta
-
-            } else if (level === 2) { 
-                // NIVEL 2: LA ATLÁNTIDA (Submarino)
+            } else if (level === 2) {
                 document.body.style.backgroundColor = '#0369a1'; // Océano profundo
-                
-                platforms.push({ x: 0, y: floorY, w: 400, h: 50, type: 'sand' });
-                currentX = 400;
-
-                while (currentX < 4000) {
-                    let gap = 250 + Math.random() * 100;
-                    currentX += gap;
-                    
-                    let colY = 100 + Math.random() * (canvas.height - 300);
-                    
-                    platforms.push({ x: currentX, y: colY + 140, w: 60, h: canvas.height, type: 'column' }); // Abajo
-                    platforms.push({ x: currentX, y: -50, w: 60, h: colY - 50, type: 'column' });            // Arriba
-
-                    // Ítem al principio del hueco
-                    items.push({ x: currentX + 30, y: colY + 45, w: 25, h: 25, type: 'note' });
-                    
-                    // Enemigo al final del hueco, evitando solapamiento
-                    if (Math.random() > 0.3) {
-                        enemies.push({ x: currentX + 150, y: colY + 20, w: 40, h: 40, type: 'jellyfish' });
-                    }
-                }
+                floorType = 'sand';
                 levelGoal = 4300;
-                platforms.push({ x: currentX, y: floorY, w: 800, h: 50, type: 'sand' });
-                items.push({ x: levelGoal - 100, y: canvas.height/2, w: 40, h: 40, type: 'score' });
-
-            } else if (level === 3) { 
-                // NIVEL 3: ARGENTINA (Montañas Nevadas)
+            } else {
                 document.body.style.backgroundColor = '#bae6fd'; // Cielo celeste argentino
-                
-                platforms.push({ x: 0, y: floorY, w: 400, h: 50, type: 'rock' });
-                currentX = 400;
-                let lastY = floorY;
-
-                while (currentX < 4500) {
-                    currentX += 70 + Math.random() * 70;
-                    let pWidth = 150 + Math.random() * 150; // Plataformas un poco más anchas
-                    
-                    lastY -= (30 + Math.random() * 60);
-                    if (lastY < 150) lastY = floorY - 50; 
-                    
-                    platforms.push({ x: currentX, y: lastY, w: pWidth, h: 100, type: 'rock' });
-                    
-                    // Separación estricta: Notas a la izquierda (25%), Nubes a la derecha (75%)
-                    items.push({ x: currentX + (pWidth * 0.25), y: lastY - 40, w: 25, h: 25, type: 'note' });
-                    
-                    if (Math.random() > 0.4) {
-                        enemies.push({ x: currentX + (pWidth * 0.75), y: lastY - 35, w: 35, h: 30, type: 'cloud' });
-                    }
-                    
-                    currentX += pWidth;
-                }
+                floorType = 'rock';
                 levelGoal = 4800;
-                platforms.push({ x: currentX, y: lastY, w: 800, h: 50, type: 'rock' });
-                items.push({ x: levelGoal - 100, y: lastY - 60, w: 40, h: 40, type: 'score' });
             }
+
+            platforms.push({ x: 0, y: floorY, w: levelGoal + canvas.width, h: 50, type: floorType });
+            for (let x = 500; x < levelGoal - 200; x += 500) {
+                items.push({ x, y: floorY - 70, w: 25, h: 25, type: 'note' });
+            }
+            items.push({ x: levelGoal - 100, y: floorY - 60, w: 40, h: 40, type: 'score' });
         }
 
         function checkCollision(a, b) {
@@ -674,7 +599,7 @@
                         player.y = p.y - player.h;
                         player.vy = 0;
                     } 
-                    // Detección de techo (golpeando la cabeza, útil en las columnas de nivel 2)
+                    // Detección de techo
                     else if (player.vy < 0 && player.y - player.vy >= p.y + p.h - 15) {
                         player.y = p.y + p.h;
                         player.vy = 0;
@@ -689,7 +614,7 @@
             }
         }
 
-        function checkItemAndEnemyCollisions() {
+        function checkItemCollisions() {
             // Colisiones con Coleccionables
             for (let i = items.length - 1; i >= 0; i--) {
                 let it = items[i];
@@ -698,17 +623,6 @@
                     score += it.type === 'score' ? 50 : 10;
                     items.splice(i, 1);
                     updateHUD();
-                }
-            }
-
-            // Colisiones con Enemigos
-            for (let e of enemies) {
-                let hitY = e.y;
-                if (e.type === 'jellyfish') {
-                    hitY = e.y + Math.sin(Date.now() / 300 + e.x) * 25; // Hitbox dinámico
-                }
-                if (checkCollision(player, { x: e.x, y: hitY, w: e.w, h: e.h })) {
-                    takeDamage();
                 }
             }
         }
@@ -872,21 +786,6 @@
                 ctx.fillText(it.type === 'score' ? "🎼" : "🎵", cx, cy + floatY + it.h);
             }
 
-            // Dibujar Enemigos
-            for (let e of enemies) {
-                if (e.x + e.w < camera.x || e.x > camera.x + canvas.width) continue;
-                
-                const cx = e.x - camera.x;
-                const cy = e.y - camera.y;
-
-                ctx.font = "35px Arial";
-                if (e.type === 'cloud') {
-                    ctx.fillText("🌩️", cx, cy + e.h);
-                } else if (e.type === 'jellyfish') {
-                    const move = Math.sin(Date.now() / 300 + e.x) * 25;
-                    ctx.fillText("🪼", cx, cy + e.h + move);
-                }
-            }
         }
 
         // --- 6. BUCLE PRINCIPAL DEL JUEGO ---
@@ -898,7 +797,7 @@
             if (GAME_STATE === 'PLAYING') {
                 player.update();
                 resolvePlatformCollisions();
-                checkItemAndEnemyCollisions();
+                checkItemCollisions();
 
                 // Lógica de Cámara fluida
                 let targetCamX = player.x - canvas.width / 3;
@@ -1070,7 +969,9 @@
         const addTouch = (elemId, key) => {
             const el = document.getElementById(elemId);
             el.addEventListener('touchstart', (e) => { e.preventDefault(); keys[key] = true; }, {passive: false});
-            el.addEventListener('touchend', (e) => { e.preventDefault(); keys[key] = false; }, {passive: false});
+            const releaseKey = (e) => { e.preventDefault(); keys[key] = false; };
+            el.addEventListener('touchend', releaseKey, {passive: false});
+            el.addEventListener('touchcancel', releaseKey, {passive: false});
         };
         addTouch('btn-right', 'right');
         addTouch('btn-left', 'left');
