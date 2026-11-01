@@ -95,7 +95,7 @@
             position: fixed;
             inset: 0;
             display: grid;
-            grid-template-columns: minmax(0, 1fr);
+            grid-template-columns: minmax(0, 1fr) clamp(5rem, 12vw, 8rem);
         }
         #game-area {
             position: relative;
@@ -107,26 +107,26 @@
             width: 100%;
             height: 100%;
         }
-        #mobile-controls {
+        #side-controls {
             box-sizing: border-box;
             align-items: center;
             justify-content: center;
+            gap: 0.75rem;
             padding: 0.5rem;
             border-left: 3px solid rgba(0, 0, 0, 0.65);
             background: rgba(15, 23, 42, 0.35);
         }
-        .touch-layout #game-layout {
-            grid-template-columns: minmax(0, 4fr) minmax(0, 1fr);
-        }
-        .touch-layout #mobile-controls:not(.hidden) {
+        #side-controls:not(.hidden) {
             display: flex;
         }
-        .touch-layout #mobile-controls .touch-btn {
+        #side-controls .touch-btn {
             width: min(85%, 4rem);
             height: min(16vw, 4rem);
             font-size: clamp(1.25rem, 4vw, 2rem);
+            touch-action: none;
+            cursor: pointer;
         }
-        .touch-layout #mobile-controls #btn-jump {
+        #side-controls #btn-jump {
             width: min(90%, 4.5rem);
             height: min(18vw, 4.5rem);
         }
@@ -218,11 +218,11 @@
             <canvas id="gameCanvas"></canvas>
         </div>
 
-        <!-- CONTROLES TÁCTILES: columna independiente a la derecha del juego -->
-        <div id="mobile-controls" class="flex-col gap-3 z-40 hidden">
-            <button id="btn-left" class="touch-btn">◀</button>
-            <button id="btn-right" class="touch-btn">▶</button>
-            <button id="btn-jump" class="touch-btn bg-blue-400/50">▲</button>
+        <!-- CONTROLES: columna independiente a la derecha del juego -->
+        <div id="side-controls" class="flex-col z-40 hidden" aria-label="Controles del juego">
+            <button id="btn-left" class="touch-btn" type="button" aria-label="Mover a la izquierda">◀</button>
+            <button id="btn-right" class="touch-btn" type="button" aria-label="Mover a la derecha">▶</button>
+            <button id="btn-jump" class="touch-btn bg-blue-400/50" type="button" aria-label="Saltar o nadar">▲</button>
         </div>
     </div>
 
@@ -248,8 +248,6 @@
 
         // Entradas de teclado
         const keys = { right: false, left: false, up: false };
-        const supportsTouchControls = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-        document.body.classList.toggle('touch-layout', supportsTouchControls);
 
         // --- 2. SISTEMA DE AUDIO (Tone.js) ---
         let synth, jumpSynth, coinSynth, damageSynth, bgmLoop;
@@ -889,8 +887,9 @@
         const milestoneVideo = document.getElementById('milestone-video');
         const milestoneVideoSrc = 'https://www.youtube.com/embed/UyoEiRPmq6M?list=RDUyoEiRPmq6M&start_radio=1';
         const milestoneTwoVideoSrc = 'https://www.youtube.com/embed/auRUxPPqDcQ?start=35';
+        const finalVictoryVideoSrc = 'https://www.youtube.com/embed/8p-IS9f3mYg?list=PLY1C-C97cj633uF9yRbEHkOMvTURbcNHq';
         const hud = document.getElementById('hud');
-        const mobileControls = document.getElementById('mobile-controls');
+        const sideControls = document.getElementById('side-controls');
 
         function stopGameOverVideo() {
             gameOverVideo.src = 'about:blank';
@@ -918,22 +917,20 @@
             if (state === 'PLAYING') {
                 uiLayer.classList.add('hidden');
                 hud.classList.remove('hidden');
-                if (supportsTouchControls) {
-                    mobileControls.classList.remove('hidden');
-                }
+                sideControls.classList.remove('hidden');
             } else if (state === 'START') {
                 screenStart.classList.remove('hidden');
                 hud.classList.add('hidden');
-                mobileControls.classList.add('hidden');
+                sideControls.classList.add('hidden');
             } else if (state === 'GAMEOVER') {
                 if (gameOverVideo.src === 'about:blank') {
                     gameOverVideo.src = gameOverVideoSrc;
                 }
                 screenGameOver.classList.remove('hidden');
-                mobileControls.classList.add('hidden');
+                sideControls.classList.add('hidden');
             } else if (state === 'MILESTONE') {
                 screenMilestone.classList.remove('hidden');
-                mobileControls.classList.add('hidden');
+                sideControls.classList.add('hidden');
             }
         }
 
@@ -991,7 +988,8 @@
                 textEl.innerText = "¡Fuego y pasión! El ritmo de 'El amor brujo' hace bailar hasta a las criaturas de las profundidades.";
                 btnEl.innerText = "ASCENDER A ARGENTINA";
             } else {
-                stopMilestoneVideo();
+                milestoneVideo.src = finalVictoryVideoSrc;
+                milestoneVideo.classList.remove('hidden');
                 titleEl.innerText = "¡Victoria Final!";
                 textEl.innerText = "¡El sueño cumbre! 'La Atlántida', la cantata monumental que une mitos y continentes desde Alta Gracia. ¡Gracias por jugar!";
                 btnEl.innerText = "JUGAR DE NUEVO";
@@ -1019,17 +1017,24 @@
             if (e.code === 'ArrowUp' || e.code === 'Space' || e.code === 'KeyW') keys.up = false;
         });
 
-        // Controles Táctiles (Optimizados con preventDefault para evitar zoom/scroll accidental)
-        const addTouch = (elemId, key) => {
+        // Controles en pantalla: pointer events permiten usar tacto, ratón o lápiz.
+        const addControl = (elemId, key) => {
             const el = document.getElementById(elemId);
-            el.addEventListener('touchstart', (e) => { e.preventDefault(); keys[key] = true; }, {passive: false});
-            const releaseKey = (e) => { e.preventDefault(); keys[key] = false; };
-            el.addEventListener('touchend', releaseKey, {passive: false});
-            el.addEventListener('touchcancel', releaseKey, {passive: false});
+            el.addEventListener('pointerdown', (e) => {
+                e.preventDefault();
+                keys[key] = true;
+                el.setPointerCapture(e.pointerId);
+            });
+            const releaseKey = (e) => {
+                e.preventDefault();
+                keys[key] = false;
+            };
+            el.addEventListener('pointerup', releaseKey);
+            el.addEventListener('pointercancel', releaseKey);
         };
-        addTouch('btn-right', 'right');
-        addTouch('btn-left', 'left');
-        addTouch('btn-jump', 'up');
+        addControl('btn-right', 'right');
+        addControl('btn-left', 'left');
+        addControl('btn-jump', 'up');
 
         // Responsividad Total del Canvas
         function resize() {

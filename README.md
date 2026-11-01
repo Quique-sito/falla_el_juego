@@ -31,8 +31,9 @@ El juego cuenta con tres fases generadas de forma procedimental, cada una con su
 *   **Moverse:** `Flecha Izquierda` / `Flecha Derecha` (o `A` / `D`)
 *   **Saltar / Nadar:** `Flecha Arriba`, `W` o `Barra Espaciadora`
 
-### Dispositivos Móviles (Tablets / Smartphones)
-*   El juego detecta pantallas táctiles y divide la pantalla: el área de juego ocupa la mayor parte y los controles virtuales quedan en una columna independiente a la derecha.
+### Controles en pantalla
+*   Los botones para moverse y saltar/nadar aparecen en una columna independiente a la derecha del juego mientras juegas. Funcionan con pantalla táctil, ratón o lápiz.
+*   En móviles y ordenadores también puedes usar el teclado con los controles indicados arriba.
 
 ## 🚀 Cómo Jugar / Instalación
 
