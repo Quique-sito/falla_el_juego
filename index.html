@@ -144,7 +144,7 @@
             <div class="bocadillo mb-8 text-center w-full">
                 <h1 class="text-4xl comic-font text-blue-600 mb-2">El Viaje Musical</h1>
                 <h2 class="text-2xl font-bold text-gray-800 mb-4">de Manuel de Falla</h2>
-                <p class="text-gray-700 mb-4 text-lg">¡Acompaña a Don Manuel desde Cádiz hasta Argentina! Salta los obstáculos y recoge notas musicales.</p>
+                <p class="text-gray-700 mb-4 text-lg">¡Acompaña a Don Manuel desde Cádiz hasta Argentina! Recoge notas musicales para encontrar inspiración y componer una obra al final de cada nivel ¿Qué compondrá...? Juega y lo sabrás.</p>
                 <div class="bg-blue-50 border-2 border-blue-200 rounded p-3 mb-6">
                     <p class="text-sm font-bold text-blue-800">Controles (PC): ⬅️ ➡️ para moverte | ⬆️, W o ESPACIO para saltar.</p>
                 </div>
@@ -223,6 +223,7 @@
             <button id="btn-left" class="touch-btn" type="button" aria-label="Mover a la izquierda">◀</button>
             <button id="btn-right" class="touch-btn" type="button" aria-label="Mover a la derecha">▶</button>
             <button id="btn-jump" class="touch-btn bg-blue-400/50" type="button" aria-label="Saltar o nadar">▲</button>
+            <button id="btn-instructions" class="touch-btn bg-yellow-400/60" type="button" aria-label="Volver a las instrucciones" title="Volver a las instrucciones">⌂</button>
         </div>
     </div>
 
@@ -999,6 +1000,12 @@
         // Listeners de UI
         document.getElementById('btn-start').addEventListener('click', () => startGame(1, false));
         document.getElementById('btn-retry-level').addEventListener('click', () => startGame(currentLevel, true));
+        document.getElementById('btn-instructions').addEventListener('click', () => {
+            keys.right = false;
+            keys.left = false;
+            keys.up = false;
+            setGameState('START');
+        });
         document.getElementById('btn-restart-all').addEventListener('click', () => startGame(1, false));
         document.getElementById('btn-continue').addEventListener('click', () => {
             if (currentLevel >= 3) startGame(1, false);
