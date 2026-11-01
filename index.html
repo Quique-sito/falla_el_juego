@@ -83,6 +83,14 @@
             transform: translate(2px, 2px);
             box-shadow: 2px 2px 0px rgba(0,0,0,1);
         }
+        .gameover-video {
+            display: block;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border: 3px solid #000;
+            border-radius: 12px;
+            background: #000;
+        }
     </style>
 </head>
 <body>
@@ -120,10 +128,18 @@
         </div>
 
         <!-- PANTALLA DE GAME OVER -->
-        <div id="screen-gameover" class="hidden flex-col items-center max-w-sm mx-4">
+        <div id="screen-gameover" class="hidden flex-col items-center w-full max-w-xl max-h-[calc(100dvh-2rem)] overflow-y-auto mx-4 py-2">
             <div class="bocadillo mb-8 text-center w-full border-red-500">
                 <h2 class="text-4xl comic-font text-red-600 mb-4">¡Oh no!</h2>
                 <p class="text-gray-700 mb-8 font-bold text-lg">La música se ha detenido...</p>
+                <iframe
+                    class="gameover-video mb-6"
+                    src="https://www.youtube.com/embed/knFB004ySIc"
+                    title="Vídeo de Game Over"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin"
+                    allowfullscreen>
+                </iframe>
                 <div class="flex flex-col gap-4">
                     <!-- Botón clave para retener a los niños: conserva puntos y restaura vidas -->
                     <button id="btn-retry-level" class="btn-comic w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-3 px-6 rounded-xl">
