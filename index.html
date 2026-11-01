@@ -1055,6 +1055,9 @@
             if (masterVolume) masterVolume.mute = isMuted;
             updateSoundButton();
         });
+        document.getElementById('btn-sound').addEventListener('keydown', e => {
+            if (e.code === 'Space' || e.code === 'Enter') e.preventDefault();
+        });
         document.getElementById('btn-start').addEventListener('click', () => startGame(1, false));
         document.getElementById('btn-retry-level').addEventListener('click', () => startGame(currentLevel, true));
         document.getElementById('btn-instructions').addEventListener('click', () => {
