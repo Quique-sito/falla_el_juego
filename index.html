@@ -223,6 +223,7 @@
             <button id="btn-left" class="touch-btn" type="button" aria-label="Mover a la izquierda">◀</button>
             <button id="btn-right" class="touch-btn" type="button" aria-label="Mover a la derecha">▶</button>
             <button id="btn-jump" class="touch-btn bg-blue-400/50" type="button" aria-label="Saltar o nadar">▲</button>
+            <button id="btn-instructions" class="touch-btn bg-yellow-400/60" type="button" aria-label="Volver a las instrucciones" title="Volver a las instrucciones">⌂</button>
         </div>
     </div>
 
@@ -1023,6 +1024,12 @@
         // Listeners de UI
         document.getElementById('btn-start').addEventListener('click', () => startGame(1, false));
         document.getElementById('btn-retry-level').addEventListener('click', () => startGame(currentLevel, true));
+        document.getElementById('btn-instructions').addEventListener('click', () => {
+            keys.right = false;
+            keys.left = false;
+            keys.up = false;
+            setGameState('START');
+        });
         document.getElementById('btn-restart-all').addEventListener('click', () => {
             stopGameOverVideo();
             setGameState('START');
