@@ -230,6 +230,16 @@
         </div>
     </div>
 
+    <button
+        id="btn-sound"
+        class="btn-comic fixed top-4 right-4 z-[60] flex h-12 w-12 items-center justify-center rounded-full bg-white text-2xl"
+        type="button"
+        aria-label="Quitar sonido"
+        aria-pressed="false"
+        title="Quitar sonido">
+        <span id="sound-icon" aria-hidden="true">🔊</span>
+    </button>
+
     <!-- ========================================== -->
     <!-- LÓGICA DEL JUEGO (JavaScript)              -->
     <!-- ========================================== -->
@@ -256,6 +266,7 @@
         // --- 2. SISTEMA DE AUDIO (Tone.js) ---
         let synth, jumpSynth, coinSynth, damageSynth, bgmLoop;
         let isAudioInitialized = false;
+        let isMuted = false;
 
         async function initAudio() {
             if (isAudioInitialized) return;
@@ -287,6 +298,16 @@
 
             isAudioInitialized = true;
             playBGM();
+        }
+
+        function updateSoundButton() {
+            const soundButton = document.getElementById('btn-sound');
+            const soundIcon = document.getElementById('sound-icon');
+            const label = isMuted ? 'Activar sonido' : 'Quitar sonido';
+            soundButton.setAttribute('aria-label', label);
+            soundButton.setAttribute('aria-pressed', String(isMuted));
+            soundButton.title = label;
+            soundIcon.textContent = isMuted ? '🔇' : '🔊';
         }
 
         function playSound(type) {
@@ -1026,6 +1047,11 @@
         }
 
         // Listeners de UI
+        document.getElementById('btn-sound').addEventListener('click', () => {
+            isMuted = !isMuted;
+            Tone.Destination.mute = isMuted;
+            updateSoundButton();
+        });
         document.getElementById('btn-start').addEventListener('click', () => startGame(1, false));
         document.getElementById('btn-retry-level').addEventListener('click', () => startGame(currentLevel, true));
         document.getElementById('btn-instructions').addEventListener('click', () => {
