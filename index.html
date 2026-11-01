@@ -172,6 +172,9 @@
                 <button id="btn-continue" class="btn-comic w-full bg-green-400 hover:bg-green-500 text-black font-bold py-4 px-6 rounded-xl text-xl">
                     CONTINUAR
                 </button>
+                <button id="btn-final-instructions" class="btn-comic hidden w-full bg-blue-400 hover:bg-blue-500 text-black font-bold py-3 px-6 rounded-xl">
+                    Volver a instrucciones del Juego
+                </button>
             </div>
         </div>
 
@@ -998,6 +1001,8 @@
             const titleEl = document.getElementById('milestone-title');
             const textEl = document.getElementById('milestone-text');
             const btnEl = document.getElementById('btn-continue');
+            const instructionsBtn = document.getElementById('btn-final-instructions');
+            instructionsBtn.classList.toggle('hidden', currentLevel !== 3);
 
             if (currentLevel === 1) {
                 milestoneVideo.src = milestoneVideoSrc;
@@ -1033,6 +1038,13 @@
         document.getElementById('btn-continue').addEventListener('click', () => {
             if (currentLevel >= 3) startGame(1, false);
             else startGame(currentLevel + 1, false);
+        });
+        document.getElementById('btn-final-instructions').addEventListener('click', () => {
+            stopMilestoneVideo();
+            keys.right = false;
+            keys.left = false;
+            keys.up = false;
+            setGameState('START');
         });
 
         // Controles de Teclado
