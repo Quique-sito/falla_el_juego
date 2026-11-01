@@ -618,14 +618,38 @@
                 levelGoal = 4800;
             }
 
-            platforms.push({ x: 0, y: floorY, w: levelGoal + canvas.width, h: 50, type: floorType });
-            for (let x = 650; x < levelGoal - 150; x += 550) {
-                platforms.push({ x, y: floorY - 44, w: 48, h: 44, type: 'obstacle', level });
+            if (level === 3) {
+                const stepRun = 380;
+                const stepWidth = 420;
+                const stepCount = Math.ceil(levelGoal / stepRun);
+                const stepRise = Math.min(32, canvas.height * 0.55 / stepCount);
+
+                for (let step = 0; step <= stepCount; step++) {
+                    platforms.push({
+                        x: step * stepRun,
+                        y: floorY - step * stepRise,
+                        w: stepWidth,
+                        h: 50,
+                        type: 'rock'
+                    });
+                }
+
+                for (let x = 500; x < levelGoal - 200; x += 500) {
+                    const step = Math.floor(x / stepRun);
+                    items.push({ x, y: floorY - step * stepRise - 70, w: 25, h: 25, type: 'note' });
+                }
+                const finalStep = Math.floor((levelGoal - 100) / stepRun);
+                items.push({ x: levelGoal - 100, y: floorY - finalStep * stepRise - 60, w: 40, h: 40, type: 'score' });
+            } else {
+                platforms.push({ x: 0, y: floorY, w: levelGoal + canvas.width, h: 50, type: floorType });
+                for (let x = 650; x < levelGoal - 150; x += 550) {
+                    platforms.push({ x, y: floorY - 44, w: 48, h: 44, type: 'obstacle', level });
+                }
+                for (let x = 500; x < levelGoal - 200; x += 500) {
+                    items.push({ x, y: floorY - 70, w: 25, h: 25, type: 'note' });
+                }
+                items.push({ x: levelGoal - 100, y: floorY - 60, w: 40, h: 40, type: 'score' });
             }
-            for (let x = 500; x < levelGoal - 200; x += 500) {
-                items.push({ x, y: floorY - 70, w: 25, h: 25, type: 'note' });
-            }
-            items.push({ x: levelGoal - 100, y: floorY - 60, w: 40, h: 40, type: 'score' });
         }
 
         function checkCollision(a, b) {
