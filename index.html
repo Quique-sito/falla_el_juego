@@ -117,10 +117,19 @@
         </div>
 
         <!-- PANTALLA DE HITOS (Niveles completados) -->
-        <div id="screen-milestone" class="hidden flex-col items-center max-w-md mx-4">
+        <div id="screen-milestone" class="hidden flex-col items-center w-full max-w-xl max-h-[calc(100dvh-2rem)] overflow-y-auto mx-4 py-2">
             <div class="bocadillo mb-8 text-center w-full">
                 <h2 id="milestone-title" class="text-3xl comic-font text-green-600 mb-4">¡Nivel Completado!</h2>
                 <p id="milestone-text" class="text-xl font-bold text-gray-800 mb-8 leading-snug"></p>
+                <iframe
+                    id="milestone-video"
+                    class="gameover-video hidden mb-6"
+                    src="about:blank"
+                    title="Vídeo del Hito 1"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin"
+                    allowfullscreen>
+                </iframe>
                 <button id="btn-continue" class="btn-comic w-full bg-green-400 hover:bg-green-500 text-black font-bold py-4 px-6 rounded-xl text-xl">
                     CONTINUAR
                 </button>
@@ -923,11 +932,18 @@
         const screenGameOver = document.getElementById('screen-gameover');
         const gameOverVideo = document.getElementById('gameover-video');
         const gameOverVideoSrc = gameOverVideo.src;
+        const milestoneVideo = document.getElementById('milestone-video');
+        const milestoneVideoSrc = 'https://www.youtube.com/embed/UyoEiRPmq6M?list=RDUyoEiRPmq6M&start_radio=1';
         const hud = document.getElementById('hud');
         const mobileControls = document.getElementById('mobile-controls');
 
         function stopGameOverVideo() {
             gameOverVideo.src = 'about:blank';
+        }
+
+        function stopMilestoneVideo() {
+            milestoneVideo.src = 'about:blank';
+            milestoneVideo.classList.add('hidden');
         }
 
         function updateHUD() {
@@ -973,6 +989,8 @@
 
             if (GAME_STATE === 'GAMEOVER') {
                 stopGameOverVideo();
+            } else if (GAME_STATE === 'MILESTONE') {
+                stopMilestoneVideo();
             }
             
             currentLevel = level;
@@ -1007,14 +1025,18 @@
             const btnEl = document.getElementById('btn-continue');
 
             if (currentLevel === 1) {
+                milestoneVideo.src = milestoneVideoSrc;
+                milestoneVideo.classList.remove('hidden');
                 titleEl.innerText = "¡Hito 1 Alcanzado!";
                 textEl.innerText = "¡Magia impresionista! Con 'Noches en los jardines de España', Falla captura la luz y el aroma de Andalucía.";
                 btnEl.innerText = "VIAJAR A LA ATLÁNTIDA";
             } else if (currentLevel === 2) {
+                stopMilestoneVideo();
                 titleEl.innerText = "¡Hito 2 Alcanzado!";
                 textEl.innerText = "¡Fuego y pasión! El ritmo de 'El amor brujo' hace bailar hasta a las criaturas de las profundidades.";
                 btnEl.innerText = "ASCENDER A ARGENTINA";
             } else {
+                stopMilestoneVideo();
                 titleEl.innerText = "¡Victoria Final!";
                 textEl.innerText = "¡El sueño cumbre! 'La Atlántida', la cantata monumental que une mitos y continentes desde Alta Gracia. ¡Gracias por jugar!";
                 btnEl.innerText = "JUGAR DE NUEVO";
