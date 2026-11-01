@@ -1048,8 +1048,9 @@
 
         // Listeners de UI
         document.getElementById('btn-sound').addEventListener('click', () => {
-            isMuted = !isMuted;
-            Tone.Destination.mute = isMuted;
+            const muted = !isMuted;
+            Tone.getDestination().mute = muted;
+            isMuted = muted;
             updateSoundButton();
         });
         document.getElementById('btn-start').addEventListener('click', () => startGame(1, false));
