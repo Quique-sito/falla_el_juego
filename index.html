@@ -264,36 +264,39 @@
         const keys = { right: false, left: false, up: false };
 
         // --- 2. SISTEMA DE AUDIO (Tone.js) ---
-        let synth, jumpSynth, coinSynth, damageSynth, bgmLoop;
+        let synth, jumpSynth, coinSynth, damageSynth, masterVolume, bgmLoop;
         let isAudioInitialized = false;
         let isMuted = false;
 
         async function initAudio() {
             if (isAudioInitialized) return;
             await Tone.start();
+
+            masterVolume = new Tone.Volume(0).toDestination();
+            masterVolume.mute = isMuted;
             
             // Música de fondo
             synth = new Tone.PolySynth(Tone.Synth, {
                 envelope: { attack: 0.05, decay: 0.2, sustain: 0.1, release: 1 }
-            }).toDestination();
+            }).connect(masterVolume);
             synth.volume.value = -12;
 
             // Efecto Salto
             jumpSynth = new Tone.Synth({
                 oscillator: { type: 'sine' },
                 envelope: { attack: 0.01, decay: 0.2, sustain: 0, release: 0 }
-            }).toDestination();
+            }).connect(masterVolume);
             jumpSynth.volume.value = -10;
 
             // Efecto Coleccionable (CRÍTICO: PolySynth para evitar crasheos por superposición)
             coinSynth = new Tone.PolySynth(Tone.Synth, {
                 oscillator: { type: 'triangle' },
                 envelope: { attack: 0.01, decay: 0.1, sustain: 0, release: 0.1 }
-            }).toDestination();
+            }).connect(masterVolume);
             coinSynth.volume.value = -8;
 
             // Efecto Daño
-            damageSynth = new Tone.MembraneSynth().toDestination();
+            damageSynth = new Tone.MembraneSynth().connect(masterVolume);
             damageSynth.volume.value = -5;
 
             isAudioInitialized = true;
@@ -1048,9 +1051,8 @@
 
         // Listeners de UI
         document.getElementById('btn-sound').addEventListener('click', () => {
-            const muted = !isMuted;
-            Tone.getDestination().mute = muted;
-            isMuted = muted;
+            isMuted = !isMuted;
+            if (masterVolume) masterVolume.mute = isMuted;
             updateSoundButton();
         });
         document.getElementById('btn-start').addEventListener('click', () => startGame(1, false));
