@@ -934,6 +934,7 @@
         const gameOverVideoSrc = gameOverVideo.src;
         const milestoneVideo = document.getElementById('milestone-video');
         const milestoneVideoSrc = 'https://www.youtube.com/embed/UyoEiRPmq6M?list=RDUyoEiRPmq6M&start_radio=1';
+        const milestoneTwoVideoSrc = 'https://www.youtube.com/embed/auRUxPPqDcQ?start=35';
         const hud = document.getElementById('hud');
         const mobileControls = document.getElementById('mobile-controls');
 
@@ -1031,7 +1032,8 @@
                 textEl.innerText = "¡Magia impresionista! Con 'Noches en los jardines de España', Falla captura la luz y el aroma de Andalucía.";
                 btnEl.innerText = "VIAJAR A LA ATLÁNTIDA";
             } else if (currentLevel === 2) {
-                stopMilestoneVideo();
+                milestoneVideo.src = milestoneTwoVideoSrc;
+                milestoneVideo.classList.remove('hidden');
                 titleEl.innerText = "¡Hito 2 Alcanzado!";
                 textEl.innerText = "¡Fuego y pasión! El ritmo de 'El amor brujo' hace bailar hasta a las criaturas de las profundidades.";
                 btnEl.innerText = "ASCENDER A ARGENTINA";
