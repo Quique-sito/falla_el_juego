@@ -1023,7 +1023,10 @@
         // Listeners de UI
         document.getElementById('btn-start').addEventListener('click', () => startGame(1, false));
         document.getElementById('btn-retry-level').addEventListener('click', () => startGame(currentLevel, true));
-        document.getElementById('btn-restart-all').addEventListener('click', () => startGame(1, false));
+        document.getElementById('btn-restart-all').addEventListener('click', () => {
+            stopGameOverVideo();
+            setGameState('START');
+        });
         document.getElementById('btn-continue').addEventListener('click', () => {
             if (currentLevel >= 3) startGame(1, false);
             else startGame(currentLevel + 1, false);
