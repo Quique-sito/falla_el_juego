@@ -223,7 +223,6 @@
             <button id="btn-left" class="touch-btn" type="button" aria-label="Mover a la izquierda">◀</button>
             <button id="btn-right" class="touch-btn" type="button" aria-label="Mover a la derecha">▶</button>
             <button id="btn-jump" class="touch-btn bg-blue-400/50" type="button" aria-label="Saltar o nadar">▲</button>
-            <button id="btn-instructions" class="touch-btn bg-yellow-400/60" type="button" aria-label="Volver a las instrucciones" title="Volver a las instrucciones">⌂</button>
         </div>
     </div>
 
@@ -619,38 +618,14 @@
                 levelGoal = 4800;
             }
 
-            if (level === 3) {
-                const stepRun = 380;
-                const stepWidth = 420;
-                const stepCount = Math.ceil(levelGoal / stepRun);
-                const stepRise = Math.min(32, canvas.height * 0.55 / stepCount);
-
-                for (let step = 0; step <= stepCount; step++) {
-                    platforms.push({
-                        x: step * stepRun,
-                        y: floorY - step * stepRise,
-                        w: stepWidth,
-                        h: 50,
-                        type: 'rock'
-                    });
-                }
-
-                for (let x = 500; x < levelGoal - 200; x += 500) {
-                    const step = Math.floor(x / stepRun);
-                    items.push({ x, y: floorY - step * stepRise - 70, w: 25, h: 25, type: 'note' });
-                }
-                const finalStep = Math.floor((levelGoal - 100) / stepRun);
-                items.push({ x: levelGoal - 100, y: floorY - finalStep * stepRise - 60, w: 40, h: 40, type: 'score' });
-            } else {
-                platforms.push({ x: 0, y: floorY, w: levelGoal + canvas.width, h: 50, type: floorType });
-                for (let x = 650; x < levelGoal - 150; x += 550) {
-                    platforms.push({ x, y: floorY - 44, w: 48, h: 44, type: 'obstacle', level });
-                }
-                for (let x = 500; x < levelGoal - 200; x += 500) {
-                    items.push({ x, y: floorY - 70, w: 25, h: 25, type: 'note' });
-                }
-                items.push({ x: levelGoal - 100, y: floorY - 60, w: 40, h: 40, type: 'score' });
+            platforms.push({ x: 0, y: floorY, w: levelGoal + canvas.width, h: 50, type: floorType });
+            for (let x = 650; x < levelGoal - 150; x += 550) {
+                platforms.push({ x, y: floorY - 44, w: 48, h: 44, type: 'obstacle', level });
             }
+            for (let x = 500; x < levelGoal - 200; x += 500) {
+                items.push({ x, y: floorY - 70, w: 25, h: 25, type: 'note' });
+            }
+            items.push({ x: levelGoal - 100, y: floorY - 60, w: 40, h: 40, type: 'score' });
         }
 
         function checkCollision(a, b) {
@@ -1024,16 +999,7 @@
         // Listeners de UI
         document.getElementById('btn-start').addEventListener('click', () => startGame(1, false));
         document.getElementById('btn-retry-level').addEventListener('click', () => startGame(currentLevel, true));
-        document.getElementById('btn-instructions').addEventListener('click', () => {
-            keys.right = false;
-            keys.left = false;
-            keys.up = false;
-            setGameState('START');
-        });
-        document.getElementById('btn-restart-all').addEventListener('click', () => {
-            stopGameOverVideo();
-            setGameState('START');
-        });
+        document.getElementById('btn-restart-all').addEventListener('click', () => startGame(1, false));
         document.getElementById('btn-continue').addEventListener('click', () => {
             if (currentLevel >= 3) startGame(1, false);
             else startGame(currentLevel + 1, false);
