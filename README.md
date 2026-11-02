@@ -5,70 +5,77 @@
 ![Estado](https://img.shields.io/badge/Estado-Completado-brightgreen.svg)
 ![Tecnologías](https://img.shields.io/badge/Tecnologías-HTML5%20%7C%20Canvas%20%7C%20Tone.js%20%7C%20Tailwind-orange)
 
-Un videojuego interactivo de plataformas y aventura en **un único archivo HTML** creado como homenaje al ilustre compositor español Manuel de Falla. 
+Juego de plataformas y aventura inspirado en la vida y la obra de Manuel de Falla, desarrollado en un único archivo HTML. La historia transcurre desde Andalucía hasta Argentina, con una fase submarina en la Atlántida y un recorrido final montañoso.
 
-Con un encantador estilo visual inspirado en el tebeo clásico español (tipo Bruguera/Ibáñez), el juego lleva a los jugadores (especialmente diseñado para público infantil) a través de un viaje mágico que conecta su obra musical desde la soleada Andalucía, pasando por la misteriosa Atlántida sumergida, hasta llegar a las cumbres nevadas de Argentina.
+El proyecto combina arte procedimental, música generativa y una interfaz con pantalla de inicio, hitos por nivel, HUD de puntos y vidas, y controles táctiles y de teclado.
 
-## ✨ Características Principales
+## ✨ Características actuales
 
-*   **Renderizado Procedimental:** Gráficos, fondos y personajes dibujados enteramente mediante código en HTML5 `<canvas>`, sin dependencias de imágenes externas.
-*   **Audio Generativo a prueba de fallos:** Música y efectos de sonido creados en tiempo real utilizando [Tone.js](https://tonejs.github.io/). Implementa sintetizadores polifónicos (`PolySynth`) y el reloj interno de la API para garantizar un rendimiento óptimo sin cuelgues (*scheduling collisions*).
-*   **Diseño 100% Responsivo:** Interfaz adaptativa construida con **Tailwind CSS**. El lienzo del juego se ajusta dinámicamente a cualquier resolución de pantalla (PC, tablet o móvil).
-*   **Controles Híbridos:** Soporte nativo para teclado en escritorio y controles táctiles translúcidos en pantalla para dispositivos móviles.
-*   **Físicas y Colisiones AABB:** Sistema de gravedad, flotabilidad (en fases acuáticas) y colisiones sólido y fluido.
+- Renderizado 2D completo con HTML5 Canvas, sin imágenes externas.
+- Música y efectos de sonido generados con Tone.js.
+- Tres niveles con progresión distinta:
+  - Andalucía: plataformas terrestres y recorrido soleado.
+  - Atlántida: movimiento submarino con flotabilidad y ritmo más pausado.
+  - Argentina: escalada con plataformas elevadas y paisaje montañoso.
+- Sistema de puntuación, vidas, enemigos y recompensas musicales.
+- Pantalla de inicio, pantalla de hito por nivel y pantalla final de victoria.
+- Controles híbridos: teclado en escritorio y botones táctiles en pantalla.
+- Diseño responsive para distintas resoluciones y dispositivos móviles.
+- Audio controlado por un botón de mute y sincronizado con el progreso del juego.
 
-## 🗺️ Los Niveles (El Recorrido)
+## 🗺️ Niveles del juego
 
-El juego cuenta con tres fases generadas de forma procedimental, cada una con sus propios fondos *parallax*, gravedades y mecánicas:
+1. Andalucía
+   - Inspirado en la luz y la poesía de Noches en los jardines de España.
+   - El jugador avanza saltando entre plataformas y recoge notas musicales.
 
-1.  🇪🇸 **Nivel 1: Andalucía.** Salta obstáculos en un recorrido bajo el Sol y la silueta de Cádiz. Inspirado en *Noches en los jardines de España*.
-2.  🌊 **Nivel 2: La Atlántida.** Falla pilotea su icónico **Submarino Blue-Bot** y salta obstáculos en un recorrido submarino. Inspirado en *El amor brujo*.
-3.  🇦🇷 **Nivel 3: Argentina (Alta Gracia).** Salta obstáculos bajo los gélidos picos de la Cordillera de los Andes. Inspirado en la cantata monumental *La Atlántida*.
+2. Atlántida
+   - El personaje pasa a tener un estilo de movimiento más submarino, con impulsos suaves y gravedad reducida.
+   - La música y el ambiente se vuelven más misteriosos.
+
+3. Argentina
+   - Recorrido final con plataformas escalonadas y una sensación más épica.
+   - Se llega a la conclusión del viaje con la referencia a La Atlántida.
 
 ## 🎮 Controles
 
-### Ordenador (PC / Mac)
-*   **Moverse:** `Flecha Izquierda` / `Flecha Derecha` (o `A` / `D`)
-*   **Saltar / Nadar:** `Flecha Arriba`, `W` o `Barra Espaciadora`
+### Teclado
+- Izquierda: Flecha izquierda o A
+- Derecha: Flecha derecha o D
+- Saltar / nadar: Flecha arriba, W o Barra espaciadora
 
-### Controles en pantalla
-*   Los botones para moverse y saltar/nadar aparecen en una columna independiente a la derecha del juego mientras juegas. Funcionan con pantalla táctil, ratón o lápiz.
-*   En móviles y ordenadores también puedes usar el teclado con los controles indicados arriba.
+### Pantalla táctil
+- Botones laterales para izquierda, derecha y salto.
+- Botón de inicio para volver a la pantalla de instrucciones.
+- La interfaz se adapta para ratón, lápiz o pantalla táctil.
 
-## 🚀 Cómo Jugar / Instalación
+## 🚀 Cómo ejecutar el juego
 
-Al estar empaquetado en una arquitectura de **archivo único**, no necesitas instalar Node.js, Webpack, ni servidores complejos:
+Este proyecto no requiere compilación ni dependencias locales. Basta con abrir el archivo en un navegador moderno:
 
-1. Clona o descarga este repositorio.
-2. Haz doble clic en el archivo `falla_aventura.html` para abrirlo en cualquier navegador web moderno (Chrome, Firefox, Safari, Edge).
-3. ¡Haz clic en "Comenzar Aventura" y disfruta!
+1. Clona o descarga el repositorio.
+2. Abre el archivo `index.html` en tu navegador.
+3. Haz clic en “¡COMENZAR AVENTURA!” para iniciar.
 
-*Nota: Para el correcto funcionamiento del audio, es necesario que el dispositivo tenga conexión a internet la primera vez que se abre para cargar la librería Tone.js desde su CDN.*
+Nota: para que el audio funcione correctamente, el navegador debe permitir la inicialización del contexto de audio tras la interacción del usuario. Si se carga desde un entorno con bloqueo de contenido, el sonido puede requerir un primer clic en la pantalla.
 
-## 🛠️ Tecnologías Utilizadas
+## 🛠️ Tecnologías utilizadas
 
-*   **HTML5 & Canvas API:** Motor gráfico 2D, renderizado de formas y sistema de cámara *side-scrolling*.
-*   **JavaScript (Vanilla ES6+):** Lógica del juego, físicas, generación procedimental y gestión de estados (Bucle `requestAnimationFrame`).
-*   **Tailwind CSS (v3 via CDN):** Estilizado de la Interfaz de Usuario (UI), tipografías, modales emergentes y *game over* screens.
-*   **Tone.js (v14):** Motor de síntesis de audio para la música de fondo y los efectos (salto, moneda, daño).
+- HTML5 y Canvas API
+- JavaScript vanilla (ES6+)
+- Tailwind CSS cargado desde CDN
+- Tone.js para la música y los efectos sonoros
 
-## 👨‍💻 Arquitectura del Código
+## 📁 Estructura del proyecto
 
-El archivo HTML está dividido en tres secciones claramente comentadas para facilitar su estudio y modificación:
-1.  **`<head>` y `<style>`:** Importación de librerías, tipografías y CSS personalizado para elementos inyectados.
-2.  **Estructura HTML (UI Layer):** Pantallas superpuestas, HUD de vidas/puntuación y botones usando clases utilitarias de Tailwind.
-3.  **`<script>` (Lógica Core):**
-    *   Configuración y Audio (Contexto Tone.js).
-    *   Entidades (`player`, `platforms`, `items`).
-    *   Motor de Físicas y Colisiones.
-    *   Renderizado de Entorno y Fondos Parallax.
-    *   Bucle Principal (`update` & `draw`).
-    *   Control de Estados y Eventos de Teclado/Táctiles.
+- `index.html`: archivo principal del juego, con la interfaz, el estilo y la lógica del videojuego.
+- `LICENSE`: licencia del proyecto.
+- `README.md`: documentación del proyecto.
 
-## 🤝 Contribución
+## 🤝 Estado del proyecto
 
-Este proyecto es de código abierto y tiene un fuerte enfoque educativo. ¡Las contribuciones, informes de errores (issues) y pull requests son más que bienvenidos! Si tienes ideas para nuevos niveles, enemigos, o melodías de Falla generadas con Tone.js, no dudes en participar.
+Es una versión completa de un juego browser-based con recorrido, audio procedural, controles táctiles y tres etapas jugables. La documentación se ha actualizado para reflejar la versión actual del proyecto y eliminar información antigua o desalineada con la implementación real.
 
 ## 📄 Licencia
 
-Este proyecto está bajo la Licencia MIT - mira el archivo [LICENSE.md](LICENSE) para más detalles.
+Este proyecto está bajo la licencia MIT. Consulta el archivo [LICENSE](LICENSE) para más detalles.
