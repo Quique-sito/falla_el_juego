@@ -1029,8 +1029,30 @@
                 const cy = it.y - camera.y;
                 const floatY = Math.sin(Date.now() / 200 + it.x) * 5; // Animación flotante
 
-                ctx.font = it.type === 'score' ? "35px Arial" : "25px Arial";
-                ctx.fillText(it.type === 'score' ? "🎼" : "🎵", cx, cy + floatY + it.h);
+                if (currentLevel === 2 && it.type === 'note') {
+                    ctx.save();
+                    ctx.translate(cx + it.w / 2, cy + floatY + it.h / 2);
+                    ctx.lineWidth = 2;
+                    ctx.lineJoin = 'round';
+                    ctx.strokeStyle = '#713f12';
+                    ctx.fillStyle = '#facc15';
+                    ctx.beginPath();
+                    ctx.moveTo(3, 7);
+                    ctx.lineTo(3, -13);
+                    ctx.quadraticCurveTo(12, -11, 10, -5);
+                    ctx.quadraticCurveTo(8, 0, 3, -1);
+                    ctx.lineTo(3, 7);
+                    ctx.fill();
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.ellipse(-2, 7, 6, 4, -0.3, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+                    ctx.restore();
+                } else {
+                    ctx.font = it.type === 'score' ? "35px Arial" : "25px Arial";
+                    ctx.fillText(it.type === 'score' ? "🎼" : "🎵", cx, cy + floatY + it.h);
+                }
             }
 
         }
