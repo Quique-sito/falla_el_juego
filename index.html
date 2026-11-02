@@ -265,6 +265,12 @@
 
         // --- 2. SISTEMA DE AUDIO (Tone.js) ---
         let synth, jumpSynth, coinSynth, damageSynth, masterVolume, bgmLoop;
+        let levelMusicAudio = null;
+        const levelMusicPaths = {
+            1: 'audio/nivel_1-jardines-espanna.mp3',
+            2: 'audio/nivel_2-ritual-fuego.mp3',
+            3: 'audio/nivel_3-atlantida.mp3'
+        };
         let isAudioInitialized = false;
         let isMuted = false;
 
@@ -311,6 +317,13 @@
             soundButton.setAttribute('aria-pressed', String(isMuted));
             soundButton.title = label;
             soundIcon.textContent = isMuted ? '🔇' : '🔊';
+
+            if (levelMusicAudio) {
+                levelMusicAudio.volume = isMuted ? 0 : 0.55;
+            }
+            if (masterVolume) {
+                masterVolume.mute = isMuted;
+            }
         }
 
         function playSound(type) {
@@ -335,16 +348,52 @@
             }
         }
 
+        function stopBGM() {
+            if (bgmLoop) {
+                bgmLoop.dispose();
+                bgmLoop = null;
+            }
+            if (levelMusicAudio) {
+                levelMusicAudio.pause();
+                levelMusicAudio.currentTime = 0;
+            }
+            if (Tone.Transport.state === 'started') {
+                Tone.Transport.stop();
+            }
+        }
+
         function playBGM() {
-            if (!isAudioInitialized || !synth) return;
-            if (bgmLoop) bgmLoop.dispose();
-            
-            // Melodías temáticas según el nivel
+            if (!isAudioInitialized) return;
+
+            if (bgmLoop) {
+                bgmLoop.dispose();
+                bgmLoop = null;
+            }
+
+            if (levelMusicAudio) {
+                levelMusicAudio.pause();
+                levelMusicAudio.currentTime = 0;
+                levelMusicAudio = null;
+            }
+
+            const trackUrl = levelMusicPaths[currentLevel];
+            if (trackUrl) {
+                levelMusicAudio = new Audio(trackUrl);
+                levelMusicAudio.loop = true;
+                levelMusicAudio.volume = isMuted ? 0 : 0.55;
+                levelMusicAudio.preload = 'auto';
+                if (GAME_STATE === 'PLAYING') {
+                    levelMusicAudio.play().catch(() => {});
+                }
+                return;
+            }
+
+            // Melodías temáticas según el nivel (fallback procedural)
             const notesL1 = ["C4", "E4", "F4", "G4", "E4", "C4", "G3", "C4"]; // Andalucía: Alegre
             const notesL2 = ["D4", "F4", "A4", "C5", "A4", "F4", "D4", "A3"]; // Atlántida: Misterioso
             const notesL3 = ["G4", "B4", "D5", "G5", "D5", "B4", "G4", "D4"]; // Argentina: Triunfal
             
-            let currentNotes = currentLevel === 1 ? notesL1 : (currentLevel === 2 ? notesL2 : notesL3);
+            const currentNotes = currentLevel === 1 ? notesL1 : (currentLevel === 2 ? notesL2 : notesL3);
             let index = 0;
 
             bgmLoop = new Tone.Loop(time => {
@@ -1064,19 +1113,25 @@
                 uiLayer.classList.add('hidden');
                 hud.classList.remove('hidden');
                 sideControls.classList.remove('hidden');
+                if (levelMusicAudio && levelMusicAudio.paused) {
+                    levelMusicAudio.play().catch(() => {});
+                }
             } else if (state === 'START') {
                 screenStart.classList.remove('hidden');
                 hud.classList.add('hidden');
                 sideControls.classList.add('hidden');
+                stopBGM();
             } else if (state === 'GAMEOVER') {
                 if (gameOverVideo.src === 'about:blank') {
                     gameOverVideo.src = gameOverVideoSrc;
                 }
                 screenGameOver.classList.remove('hidden');
                 sideControls.classList.add('hidden');
+                stopBGM();
             } else if (state === 'MILESTONE') {
                 screenMilestone.classList.remove('hidden');
                 sideControls.classList.add('hidden');
+                stopBGM();
             }
         }
 
