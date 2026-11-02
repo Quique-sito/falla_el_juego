@@ -130,6 +130,15 @@
             width: min(90%, 4.5rem);
             height: min(18vw, 4.5rem);
         }
+        @media (max-width: 640px) and (pointer: coarse) {
+            #btn-sound {
+                top: 0.5rem;
+                right: 0.5rem;
+                width: 2.5rem;
+                height: 2.5rem;
+                font-size: 1.25rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -438,6 +447,10 @@
                     this.jumpPower = -15; 
                     this.w = 40;
                     this.h = 60;
+                }
+
+                if (window.matchMedia('(max-width: 640px) and (pointer: coarse)').matches) {
+                    this.y = Math.max(0, canvas.height - 50 - this.h);
                 }
             },
 
