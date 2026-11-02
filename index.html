@@ -1049,6 +1049,29 @@
                     ctx.fill();
                     ctx.stroke();
                     ctx.restore();
+                } else if (currentLevel === 2 && it.type === 'score') {
+                    ctx.save();
+                    ctx.translate(cx + it.w / 2, cy + floatY + it.h / 2);
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(2, 16);
+                    ctx.bezierCurveTo(-4, 12, -7, 7, -4, 2);
+                    ctx.bezierCurveTo(0, -3, 7, 0, 7, 5);
+                    ctx.bezierCurveTo(7, 11, 0, 13, -4, 8);
+                    ctx.bezierCurveTo(-10, 1, -1, -5, 4, -12);
+                    ctx.bezierCurveTo(11, -22, 4, -31, 0, -27);
+                    ctx.bezierCurveTo(-6, -23, 0, -17, 4, -11);
+                    ctx.bezierCurveTo(10, 0, 5, 11, 1, 18);
+                    ctx.bezierCurveTo(-2, 24, -10, 24, -12, 19);
+                    ctx.bezierCurveTo(-14, 14, -7, 12, -3, 15);
+                    ctx.strokeStyle = '#713f12';
+                    ctx.lineWidth = 6;
+                    ctx.stroke();
+                    ctx.strokeStyle = '#facc15';
+                    ctx.lineWidth = 3.5;
+                    ctx.stroke();
+                    ctx.restore();
                 } else {
                     ctx.font = it.type === 'score' ? "35px Arial" : "25px Arial";
                     ctx.fillText(it.type === 'score' ? "🎼" : "🎵", cx, cy + floatY + it.h);
