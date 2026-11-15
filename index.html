@@ -147,7 +147,7 @@
     <!-- INTERFAZ DE USUARIO (HTML/Tailwind)        -->
     <!-- ========================================== -->
     <div id="ui-layer" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300">
-        
+
         <!-- PANTALLA DE INICIO -->
         <div id="screen-start" class="flex flex-col items-center max-w-lg mx-4">
             <div class="bocadillo mb-8 text-center w-full">
@@ -266,6 +266,11 @@
             2: (() => {
                 const img = new Image();
                 img.src = 'Escenarios/escenario2.jpeg';
+                return img;
+            })(),
+            3: (() => {
+                const img = new Image();
+                img.src = 'Escenarios/escenario3.jpeg';
                 return img;
             })()
         };
@@ -891,49 +896,55 @@
                 }
             } 
             else if (currentLevel === 3) {
-                // FONDO ARGENTINA (Cordillera de los Andes)
-                // Sol de Mayo (simplificado)
-                ctx.fillStyle = '#fde047';
-                ctx.beginPath(); ctx.arc(120, 100, 50, 0, Math.PI*2); ctx.fill();
-                
-                // Cordillera
-                const bgOffset3 = (camera.x * 0.1) % 1200;
-                for(let i = -1; i < 3; i++) {
-                    let startX = i * 1200 - bgOffset3;
+                const level3Image = levelBackgrounds[3];
+                if (level3Image && level3Image.complete && level3Image.naturalWidth > 0) {
+                    const levelWidth = levelGoal + canvas.width;
+                    ctx.drawImage(level3Image, -camera.x, 0, levelWidth, canvas.height);
+                } else {
+                    // FONDO ARGENTINA (Cordillera de los Andes)
+                    // Sol de Mayo (simplificado)
+                    ctx.fillStyle = '#fde047';
+                    ctx.beginPath(); ctx.arc(120, 100, 50, 0, Math.PI*2); ctx.fill();
                     
-                    // Montaña 1
-                    ctx.fillStyle = '#94a3b8'; // Gris
-                    ctx.beginPath();
-                    ctx.moveTo(startX, canvas.height);
-                    ctx.lineTo(startX + 300, canvas.height - 450); // Pico
-                    ctx.lineTo(startX + 600, canvas.height);
-                    ctx.fill();
-                    
-                    // Nieve Montaña 1
-                    ctx.fillStyle = '#ffffff';
-                    ctx.beginPath();
-                    ctx.moveTo(startX + 200, canvas.height - 300);
-                    ctx.lineTo(startX + 300, canvas.height - 450);
-                    ctx.lineTo(startX + 400, canvas.height - 300);
-                    ctx.lineTo(startX + 300, canvas.height - 250); // Pico invertido
-                    ctx.fill();
+                    // Cordillera
+                    const bgOffset3 = (camera.x * 0.1) % 1200;
+                    for(let i = -1; i < 3; i++) {
+                        let startX = i * 1200 - bgOffset3;
+                        
+                        // Montaña 1
+                        ctx.fillStyle = '#94a3b8'; // Gris
+                        ctx.beginPath();
+                        ctx.moveTo(startX, canvas.height);
+                        ctx.lineTo(startX + 300, canvas.height - 450); // Pico
+                        ctx.lineTo(startX + 600, canvas.height);
+                        ctx.fill();
+                        
+                        // Nieve Montaña 1
+                        ctx.fillStyle = '#ffffff';
+                        ctx.beginPath();
+                        ctx.moveTo(startX + 200, canvas.height - 300);
+                        ctx.lineTo(startX + 300, canvas.height - 450);
+                        ctx.lineTo(startX + 400, canvas.height - 300);
+                        ctx.lineTo(startX + 300, canvas.height - 250); // Pico invertido
+                        ctx.fill();
 
-                    // Montaña 2 (más pequeña, detrás)
-                    ctx.fillStyle = '#64748b'; // Gris más oscuro
-                    ctx.beginPath();
-                    ctx.moveTo(startX + 400, canvas.height);
-                    ctx.lineTo(startX + 650, canvas.height - 350); // Pico
-                    ctx.lineTo(startX + 900, canvas.height);
-                    ctx.fill();
-                    
-                    // Nieve Montaña 2
-                    ctx.fillStyle = '#f8fafc';
-                    ctx.beginPath();
-                    ctx.moveTo(startX + 540, canvas.height - 200);
-                    ctx.lineTo(startX + 650, canvas.height - 350);
-                    ctx.lineTo(startX + 760, canvas.height - 200);
-                    ctx.lineTo(startX + 650, canvas.height - 150);
-                    ctx.fill();
+                        // Montaña 2 (más pequeña, detrás)
+                        ctx.fillStyle = '#64748b'; // Gris más oscuro
+                        ctx.beginPath();
+                        ctx.moveTo(startX + 400, canvas.height);
+                        ctx.lineTo(startX + 650, canvas.height - 350); // Pico
+                        ctx.lineTo(startX + 900, canvas.height);
+                        ctx.fill();
+                        
+                        // Nieve Montaña 2
+                        ctx.fillStyle = '#f8fafc';
+                        ctx.beginPath();
+                        ctx.moveTo(startX + 540, canvas.height - 200);
+                        ctx.lineTo(startX + 650, canvas.height - 350);
+                        ctx.lineTo(startX + 760, canvas.height - 200);
+                        ctx.lineTo(startX + 650, canvas.height - 150);
+                        ctx.fill();
+                    }
                 }
             }
 
