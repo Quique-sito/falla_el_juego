@@ -828,12 +828,8 @@
             if (currentLevel === 1) {
                 const level1Image = levelBackgrounds[1];
                 if (level1Image && level1Image.complete && level1Image.naturalWidth > 0) {
-                    const offsetX = (camera.x * 0.2) % (level1Image.naturalWidth * 0.8);
-                    const repeatWidth = level1Image.naturalWidth * 0.8;
-                    for (let i = -1; i < Math.ceil(canvas.width / repeatWidth) + 2; i++) {
-                        const x = i * repeatWidth - offsetX;
-                        ctx.drawImage(level1Image, x, 0, repeatWidth, canvas.height);
-                    }
+                    const levelWidth = levelGoal + canvas.width;
+                    ctx.drawImage(level1Image, -camera.x, 0, levelWidth, canvas.height);
                 } else {
                 // FONDO CÁDIZ / ANDALUCÍA
                 // Sol
