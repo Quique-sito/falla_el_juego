@@ -55,6 +55,7 @@ El proyecto combina arte procedimental, música generativa y una interfaz con pa
 - Añade tarjetas para avanzar, retroceder o girar a izquierda/derecha y pulsa “Go” para ejecutar la secuencia.
 - Recoge el clarinete, oboe, violín, violoncello y clave.
 - Los instrumentos cambian de casilla en cada partida; Falla siempre empieza en la esquina inferior izquierda, visto desde arriba.
+- Al recogerlos todos, aparece una ventana de victoria con Falla y los cinco instrumentos.
 
 ## 🚀 Cómo ejecutar el juego
 
