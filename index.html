@@ -1006,6 +1006,10 @@
                     ctx.quadraticCurveTo(20, 0, 12, 0);
                     ctx.closePath();
                     ctx.fill();
+                    ctx.lineWidth = 5;
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.stroke();
+                    ctx.lineWidth = 2;
                     ctx.stroke();
 
                     ctx.fillStyle = '#fde047';
@@ -1044,8 +1048,8 @@
                     ctx.fill();
                 } else {
                     ctx.translate(centerX, y + enemy.h / 2 + wobble);
-                    ctx.strokeStyle = '#38bdf8';
-                    ctx.lineWidth = 5;
+                    ctx.shadowColor = '#ffffff';
+                    ctx.shadowBlur = 10;
                     ctx.lineCap = 'round';
                     for (let streak = 0; streak < 3; streak++) {
                         const offsetY = (streak - 1) * 12;
@@ -1055,6 +1059,11 @@
                         ctx.moveTo(-25 + offsetX, offsetY);
                         ctx.quadraticCurveTo(-5, offsetY - 7, 7, offsetY);
                         ctx.quadraticCurveTo(17, offsetY + 6, 25, offsetY - 2);
+                        ctx.strokeStyle = '#ffffff';
+                        ctx.lineWidth = 9;
+                        ctx.stroke();
+                        ctx.strokeStyle = '#c026d3';
+                        ctx.lineWidth = 5;
                         ctx.stroke();
                     }
                     ctx.globalAlpha = 1;
@@ -1076,7 +1085,29 @@
                 const cy = it.y - camera.y;
                 const floatY = Math.sin(Date.now() / 200 + it.x) * 5; // Animación flotante
 
-                if (currentLevel === 2 && it.type === 'note') {
+                if (it.type === 'note' && currentLevel !== 2) {
+                    ctx.save();
+                    ctx.translate(cx + it.w / 2, cy + floatY + it.h / 2);
+                    ctx.lineJoin = 'round';
+                    ctx.shadowColor = '#ffffff';
+                    ctx.shadowBlur = 8;
+                    ctx.fillStyle = currentLevel === 1 ? '#c026d3' : '#f97316';
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 6;
+                    ctx.beginPath();
+                    ctx.moveTo(3, 7);
+                    ctx.lineTo(3, -13);
+                    ctx.quadraticCurveTo(12, -11, 10, -5);
+                    ctx.quadraticCurveTo(8, 0, 3, -1);
+                    ctx.lineTo(3, 7);
+                    ctx.ellipse(-2, 7, 6, 4, -0.3, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+                    ctx.strokeStyle = '#1f2937';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    ctx.restore();
+                } else if (currentLevel === 2 && it.type === 'note') {
                     ctx.save();
                     ctx.translate(cx + it.w / 2, cy + floatY + it.h / 2);
                     ctx.lineWidth = 2;
