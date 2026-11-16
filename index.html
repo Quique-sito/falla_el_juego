@@ -139,6 +139,72 @@
                 font-size: 1.25rem;
             }
         }
+        .bluebot-cell {
+            position: relative;
+            display: flex;
+            aspect-ratio: 1;
+            min-width: 0;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.1rem;
+            overflow: hidden;
+            border: 2px solid #0f172a;
+            border-radius: 0.75rem;
+            background: linear-gradient(145deg, #dbeafe, #bfdbfe);
+            text-align: center;
+        }
+        .bluebot-cell-player {
+            background: linear-gradient(145deg, #67e8f9, #38bdf8);
+            box-shadow: inset 0 0 0 3px #fff;
+        }
+        .bluebot-cell-instrument {
+            background: linear-gradient(145deg, #fef3c7, #fde68a);
+        }
+        .bluebot-cell-player.bluebot-cell-instrument {
+            background: linear-gradient(145deg, #a7f3d0, #fef3c7);
+        }
+        .bluebot-instrument-icon {
+            font-size: clamp(1.2rem, 5vw, 2rem);
+            line-height: 1;
+        }
+        .bluebot-instrument-name {
+            max-width: 100%;
+            padding: 0 0.15rem;
+            font-size: clamp(0.55rem, 2vw, 0.75rem);
+            font-weight: 700;
+            line-height: 1.05;
+            overflow-wrap: anywhere;
+        }
+        .bluebot-player-icon {
+            display: grid;
+            width: 2rem;
+            height: 2rem;
+            place-items: center;
+            border: 2px solid #0f172a;
+            border-radius: 50%;
+            background: #fff;
+            font-size: 1.25rem;
+            line-height: 1;
+        }
+        .bluebot-sequence-card {
+            display: flex;
+            min-width: 3.5rem;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #1e3a8a;
+            border-radius: 0.65rem;
+            background: #dbeafe;
+            padding: 0.3rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .bluebot-sequence-card.is-current {
+            border-color: #16a34a;
+            background: #bbf7d0;
+            box-shadow: 0 0 0 2px #16a34a;
+        }
     </style>
 </head>
 <body>
@@ -149,7 +215,7 @@
     <div id="ui-layer" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300">
 
         <!-- PANTALLA DE INICIO -->
-        <div id="screen-start" class="flex flex-col items-center max-w-lg mx-4">
+        <div id="screen-start" class="flex max-h-[calc(100dvh-1rem)] flex-col items-center overflow-y-auto max-w-lg mx-4 py-2">
             <div class="bocadillo mb-8 text-center w-full">
                 <h1 class="text-4xl comic-font text-blue-600 mb-2">El Viaje Musical</h1>
                 <h2 class="text-2xl font-bold text-gray-800 mb-4">de Manuel de Falla</h2>
@@ -160,8 +226,69 @@
                 <button id="btn-start" class="btn-comic w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-4 px-6 rounded-xl text-xl">
                     ¡COMENZAR AVENTURA!
                 </button>
+                <button id="btn-bluebot" class="btn-comic mt-4 w-full rounded-xl bg-cyan-400 px-6 py-3 text-lg font-bold text-slate-950 hover:bg-cyan-500">
+                    MODO BLUE-BOT
+                </button>
             </div>
             <div class="flex gap-4 text-4xl">🎼 🌊 🎹 🇦🇷</div>
+        </div>
+
+        <!-- MODO BLUE-BOT -->
+        <div id="screen-bluebot" class="hidden max-h-[calc(100dvh-1rem)] w-full max-w-4xl overflow-y-auto px-3 py-2">
+            <section class="rounded-2xl border-4 border-slate-950 bg-white p-3 shadow-[6px_6px_0px_rgba(0,0,0,0.8)] sm:p-5">
+                <header class="mb-2 flex items-center justify-between gap-2">
+                    <h2 class="comic-font text-2xl text-cyan-700 sm:text-3xl">Modo Blue-Bot</h2>
+                    <button id="btn-bluebot-menu" class="btn-comic rounded-lg bg-white px-3 py-2 text-sm font-bold" type="button">
+                        Menú
+                    </button>
+                </header>
+                <p class="mb-3 text-center text-sm font-semibold text-slate-700 sm:text-base">
+                    ⬆ Avanza, ⬇ retrocede según hacia dónde mira Falla; ↻ y ↺ giran. Pulsa <strong>Go</strong> para ejecutar.
+                </p>
+
+                <div class="mx-auto mb-3 grid w-full max-w-md grid-cols-4 gap-1.5 rounded-xl border-4 border-slate-900 bg-slate-800 p-1.5 sm:gap-2 sm:p-2" id="bluebot-grid" role="grid" aria-label="Cuadrícula Blue-Bot de cuatro por cuatro"></div>
+
+                <div class="mb-3 rounded-xl border-2 border-cyan-800 bg-cyan-50 p-2">
+                    <h3 class="mb-1 text-sm font-bold text-slate-800">Instrumentos recogidos</h3>
+                    <div id="bluebot-collected" class="flex flex-wrap gap-1.5" aria-live="polite"></div>
+                </div>
+
+                <div class="mb-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    <button class="bluebot-command btn-comic rounded-lg bg-blue-200 px-2 py-2 font-bold" type="button" data-command="forward" aria-label="Añadir avanzar">
+                        <span class="text-2xl">⬆</span><span class="block text-xs">Avanzar</span>
+                    </button>
+                    <button class="bluebot-command btn-comic rounded-lg bg-blue-200 px-2 py-2 font-bold" type="button" data-command="backward" aria-label="Añadir retroceder">
+                        <span class="text-2xl">⬇</span><span class="block text-xs">Retroceder</span>
+                    </button>
+                    <button class="bluebot-command btn-comic rounded-lg bg-blue-200 px-2 py-2 font-bold" type="button" data-command="right" aria-label="Añadir giro a la derecha">
+                        <span class="text-2xl">↻</span><span class="block text-xs">Girar derecha</span>
+                    </button>
+                    <button class="bluebot-command btn-comic rounded-lg bg-blue-200 px-2 py-2 font-bold" type="button" data-command="left" aria-label="Añadir giro a la izquierda">
+                        <span class="text-2xl">↺</span><span class="block text-xs">Girar izquierda</span>
+                    </button>
+                </div>
+
+                <div class="mb-3 rounded-xl border-2 border-slate-800 bg-slate-50 p-2">
+                    <div class="mb-2 flex items-center justify-between gap-2">
+                        <h3 class="font-bold text-slate-800">Secuencia de tarjetas</h3>
+                        <div class="flex gap-2">
+                            <button id="btn-bluebot-undo" class="rounded-md border-2 border-slate-700 bg-white px-2 py-1 text-xs font-bold" type="button">Deshacer</button>
+                            <button id="btn-bluebot-clear" class="rounded-md border-2 border-slate-700 bg-white px-2 py-1 text-xs font-bold" type="button">Borrar</button>
+                        </div>
+                    </div>
+                    <ol id="bluebot-sequence" class="flex min-h-14 gap-2 overflow-x-auto py-1" aria-label="Movimientos programados"></ol>
+                </div>
+
+                <p id="bluebot-status" class="mb-3 min-h-6 text-center text-sm font-bold text-slate-800" role="status" aria-live="polite"></p>
+                <div class="flex flex-wrap justify-center gap-3">
+                    <button id="btn-bluebot-go" class="btn-comic rounded-xl border-black bg-green-500 px-8 py-3 text-xl font-bold text-white hover:bg-green-600" type="button">
+                        Go ▶
+                    </button>
+                    <button id="btn-bluebot-reset" class="btn-comic rounded-xl bg-yellow-300 px-4 py-3 font-bold hover:bg-yellow-400" type="button">
+                        Reiniciar tablero
+                    </button>
+                </div>
+            </section>
         </div>
 
         <!-- PANTALLA DE HITOS (Niveles completados) -->
@@ -275,7 +402,7 @@
             })()
         };
         
-        let GAME_STATE = 'START'; // Estados posibles: START, PLAYING, MILESTONE, GAMEOVER
+        let GAME_STATE = 'START'; // Estados posibles: START, PLAYING, MILESTONE, GAMEOVER, BLUEBOT
         let currentLevel = 1;
         let score = 0;
         let lives = 3;
@@ -299,6 +426,29 @@
         };
         let isAudioInitialized = false;
         let isMuted = false;
+        const blueBotInstruments = [
+            { id: 'clarinete', name: 'Clarinete', icon: '🎵', row: 0, column: 0 },
+            { id: 'oboe', name: 'Oboe', icon: '🎶', row: 0, column: 3 },
+            { id: 'violin', name: 'Violín', icon: '🎻', row: 2, column: 3 },
+            { id: 'violoncello', name: 'Violoncello', icon: '🎻', row: 3, column: 2 },
+            { id: 'clave', name: 'Clave', icon: '🎹', row: 2, column: 0 }
+        ];
+        const blueBotCommands = {
+            forward: { icon: '⬆', label: 'Avanzar' },
+            backward: { icon: '⬇', label: 'Retroceder' },
+            right: { icon: '↻', label: 'Giro derecha' },
+            left: { icon: '↺', label: 'Giro izquierda' }
+        };
+        const blueBot = {
+            row: 3,
+            column: 0,
+            direction: 0,
+            sequence: [],
+            collected: new Set(),
+            running: false,
+            runId: 0,
+            executingStep: -1
+        };
 
         async function initAudio() {
             if (isAudioInitialized) return;
@@ -1221,7 +1371,7 @@
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            if (GAME_STATE === 'START') return;
+            if (GAME_STATE === 'START' || GAME_STATE === 'BLUEBOT') return;
             drawEnvironment();
             // Mantener a Falla visible incluso en Game Over o Transición
             if (GAME_STATE === 'PLAYING' || GAME_STATE === 'MILESTONE' || GAME_STATE === 'GAMEOVER') {
@@ -1232,6 +1382,7 @@
         // --- 7. CONTROLADORES DE ESTADO (UI y Eventos) ---
         const uiLayer = document.getElementById('ui-layer');
         const screenStart = document.getElementById('screen-start');
+        const screenBlueBot = document.getElementById('screen-bluebot');
         const screenMilestone = document.getElementById('screen-milestone');
         const screenGameOver = document.getElementById('screen-gameover');
         const gameOverVideo = document.getElementById('gameover-video');
@@ -1257,12 +1408,196 @@
             document.getElementById('lives').innerText = lives;
         }
 
+        function renderBlueBotMode() {
+            const grid = document.getElementById('bluebot-grid');
+            const collectedList = document.getElementById('bluebot-collected');
+            const sequenceList = document.getElementById('bluebot-sequence');
+            grid.replaceChildren();
+
+            for (let row = 0; row < 4; row++) {
+                for (let column = 0; column < 4; column++) {
+                    const cell = document.createElement('div');
+                    const instrument = blueBotInstruments.find(item =>
+                        item.row === row &&
+                        item.column === column &&
+                        !blueBot.collected.has(item.id)
+                    );
+                    const hasPlayer = blueBot.row === row && blueBot.column === column;
+                    cell.className = `bluebot-cell${instrument ? ' bluebot-cell-instrument' : ''}${hasPlayer ? ' bluebot-cell-player' : ''}`;
+                    cell.setAttribute('role', 'gridcell');
+                    cell.setAttribute(
+                        'aria-label',
+                        `Fila ${row + 1}, columna ${column + 1}${instrument ? `, ${instrument.name}` : ''}${hasPlayer ? ', Falla' : ''}`
+                    );
+
+                    if (instrument) {
+                        const icon = document.createElement('span');
+                        icon.className = 'bluebot-instrument-icon';
+                        icon.textContent = instrument.icon;
+                        const name = document.createElement('span');
+                        name.className = 'bluebot-instrument-name';
+                        name.textContent = instrument.name;
+                        cell.append(icon, name);
+                    }
+
+                    if (hasPlayer) {
+                        const playerIcon = document.createElement('span');
+                        playerIcon.className = 'bluebot-player-icon';
+                        playerIcon.textContent = '🚤';
+                        const direction = document.createElement('span');
+                        direction.textContent = '⬆';
+                        direction.setAttribute('aria-hidden', 'true');
+                        direction.style.transform = `rotate(${blueBot.direction * 90}deg)`;
+                        direction.style.fontSize = '0.8rem';
+                        const name = document.createElement('span');
+                        name.className = 'bluebot-instrument-name';
+                        name.textContent = 'Falla';
+                        cell.append(playerIcon, direction, name);
+                    }
+
+                    grid.append(cell);
+                }
+            }
+
+            collectedList.replaceChildren();
+            for (const instrument of blueBotInstruments) {
+                const tag = document.createElement('span');
+                const isCollected = blueBot.collected.has(instrument.id);
+                tag.className = `rounded-full border px-2 py-1 text-xs font-bold ${isCollected ? 'border-green-700 bg-green-100 text-green-900' : 'border-slate-400 bg-white text-slate-500'}`;
+                tag.textContent = `${isCollected ? '✓' : '○'} ${instrument.name}`;
+                collectedList.append(tag);
+            }
+
+            sequenceList.replaceChildren();
+            blueBot.sequence.forEach((command, index) => {
+                const card = document.createElement('li');
+                const commandInfo = blueBotCommands[command];
+                card.className = `bluebot-sequence-card${blueBot.executingStep === index ? ' is-current' : ''}`;
+                card.setAttribute('aria-current', blueBot.executingStep === index ? 'step' : 'false');
+                const icon = document.createElement('span');
+                icon.className = 'text-xl leading-none';
+                icon.textContent = commandInfo.icon;
+                const label = document.createElement('span');
+                label.textContent = `${index + 1}. ${commandInfo.label}`;
+                card.append(icon, label);
+                sequenceList.append(card);
+            });
+
+            if (blueBot.sequence.length === 0) {
+                const emptyMessage = document.createElement('li');
+                emptyMessage.className = 'self-center text-sm text-slate-500';
+                emptyMessage.textContent = 'Elige tarjetas de movimiento para crear una secuencia.';
+                sequenceList.append(emptyMessage);
+            }
+
+            updateBlueBotControls();
+        }
+
+        function updateBlueBotControls() {
+            const isComplete = blueBot.collected.size === blueBotInstruments.length;
+            document.querySelectorAll('.bluebot-command').forEach(button => {
+                button.disabled = blueBot.running || isComplete;
+            });
+            document.getElementById('btn-bluebot-go').disabled =
+                blueBot.running || blueBot.sequence.length === 0 || isComplete;
+            document.getElementById('btn-bluebot-undo').disabled =
+                blueBot.running || blueBot.sequence.length === 0;
+            document.getElementById('btn-bluebot-clear').disabled =
+                blueBot.running || blueBot.sequence.length === 0;
+            document.getElementById('btn-bluebot-reset').disabled = blueBot.running;
+        }
+
+        function resetBlueBotMode() {
+            blueBot.runId++;
+            blueBot.row = 3;
+            blueBot.column = 0;
+            blueBot.direction = 0;
+            blueBot.sequence = [];
+            blueBot.collected.clear();
+            blueBot.running = false;
+            blueBot.executingStep = -1;
+            document.getElementById('bluebot-status').textContent =
+                'Falla empieza abajo a la izquierda, mirando hacia arriba. Programa sus movimientos.';
+            renderBlueBotMode();
+        }
+
+        function applyBlueBotCommand(command) {
+            if (command === 'right') {
+                blueBot.direction = (blueBot.direction + 1) % 4;
+                return 'Falla gira a la derecha.';
+            }
+            if (command === 'left') {
+                blueBot.direction = (blueBot.direction + 3) % 4;
+                return 'Falla gira a la izquierda.';
+            }
+
+            const direction = command === 'backward'
+                ? (blueBot.direction + 2) % 4
+                : blueBot.direction;
+            const rowChange = [-1, 0, 1, 0][direction];
+            const columnChange = [0, 1, 0, -1][direction];
+            const nextRow = blueBot.row + rowChange;
+            const nextColumn = blueBot.column + columnChange;
+            if (nextRow < 0 || nextRow > 3 || nextColumn < 0 || nextColumn > 3) {
+                return 'Falla llega al borde y permanece en su casilla.';
+            }
+
+            blueBot.row = nextRow;
+            blueBot.column = nextColumn;
+            const instrument = blueBotInstruments.find(item =>
+                item.row === blueBot.row &&
+                item.column === blueBot.column &&
+                !blueBot.collected.has(item.id)
+            );
+            if (instrument) {
+                blueBot.collected.add(instrument.id);
+                return `¡Has recogido el instrumento: ${instrument.name}!`;
+            }
+            return command === 'backward' ? 'Falla retrocede una casilla.' : 'Falla avanza una casilla.';
+        }
+
+        async function runBlueBotSequence() {
+            if (blueBot.running || blueBot.sequence.length === 0) return;
+
+            const runId = ++blueBot.runId;
+            const commands = blueBot.sequence.slice();
+            blueBot.running = true;
+            blueBot.executingStep = -1;
+            document.getElementById('bluebot-status').textContent = '¡Go! Falla está siguiendo la secuencia.';
+            renderBlueBotMode();
+
+            for (let index = 0; index < commands.length; index++) {
+                await new Promise(resolve => setTimeout(resolve, 450));
+                if (runId !== blueBot.runId) return;
+                blueBot.executingStep = index;
+                document.getElementById('bluebot-status').textContent = applyBlueBotCommand(commands[index]);
+                renderBlueBotMode();
+                if (blueBot.collected.size === blueBotInstruments.length) break;
+            }
+
+            if (runId !== blueBot.runId) return;
+            const isComplete = blueBot.collected.size === blueBotInstruments.length;
+            blueBot.sequence = [];
+            blueBot.executingStep = -1;
+            blueBot.running = false;
+            if (isComplete) {
+                document.getElementById('bluebot-status').textContent =
+                    '¡Lo has conseguido! Falla ha recogido los cinco instrumentos.';
+            } else {
+                document.getElementById('bluebot-status').textContent =
+                    `Secuencia completada. Instrumentos recogidos: ${blueBot.collected.size} de ${blueBotInstruments.length}.`;
+            }
+            renderBlueBotMode();
+        }
+
         function setGameState(state) {
             GAME_STATE = state;
+            document.getElementById('btn-sound').classList.toggle('hidden', state === 'BLUEBOT');
             
             // Ocultar modales por defecto
             uiLayer.classList.remove('hidden');
             screenStart.classList.add('hidden');
+            screenBlueBot.classList.add('hidden');
             screenMilestone.classList.add('hidden');
             screenGameOver.classList.add('hidden');
             
@@ -1275,6 +1610,11 @@
                 }
             } else if (state === 'START') {
                 screenStart.classList.remove('hidden');
+                hud.classList.add('hidden');
+                sideControls.classList.add('hidden');
+                stopBGM();
+            } else if (state === 'BLUEBOT') {
+                screenBlueBot.classList.remove('hidden');
                 hud.classList.add('hidden');
                 sideControls.classList.add('hidden');
                 stopBGM();
@@ -1366,6 +1706,41 @@
             if (e.code === 'Space' || e.code === 'Enter') e.preventDefault();
         });
         document.getElementById('btn-start').addEventListener('click', () => startGame(1, false));
+        document.getElementById('btn-bluebot').addEventListener('click', () => {
+            keys.right = false;
+            keys.left = false;
+            keys.up = false;
+            resetBlueBotMode();
+            setGameState('BLUEBOT');
+        });
+        document.getElementById('btn-bluebot-menu').addEventListener('click', () => {
+            blueBot.runId++;
+            blueBot.running = false;
+            blueBot.executingStep = -1;
+            keys.right = false;
+            keys.left = false;
+            keys.up = false;
+            setGameState('START');
+        });
+        document.querySelectorAll('.bluebot-command').forEach(button => {
+            button.addEventListener('click', () => {
+                if (blueBot.running || blueBot.collected.size === blueBotInstruments.length) return;
+                blueBot.sequence.push(button.dataset.command);
+                renderBlueBotMode();
+            });
+        });
+        document.getElementById('btn-bluebot-undo').addEventListener('click', () => {
+            if (blueBot.running) return;
+            blueBot.sequence.pop();
+            renderBlueBotMode();
+        });
+        document.getElementById('btn-bluebot-clear').addEventListener('click', () => {
+            if (blueBot.running) return;
+            blueBot.sequence = [];
+            renderBlueBotMode();
+        });
+        document.getElementById('btn-bluebot-go').addEventListener('click', runBlueBotSequence);
+        document.getElementById('btn-bluebot-reset').addEventListener('click', resetBlueBotMode);
         document.getElementById('btn-retry-level').addEventListener('click', () => startGame(currentLevel, true));
         document.getElementById('btn-instructions').addEventListener('click', () => {
             keys.right = false;

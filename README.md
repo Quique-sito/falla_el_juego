@@ -20,6 +20,7 @@ El proyecto combina arte procedimental, música generativa y una interfaz con pa
 - Sistema de puntuación, vidas, enemigos y recompensas musicales.
 - Pantalla de inicio, pantalla de hito por nivel y pantalla final de victoria.
 - Controles híbridos: teclado en escritorio y botones táctiles en pantalla.
+- Modo Blue-Bot: programa movimientos en una cuadrícula 4×4 para recoger cinco instrumentos.
 - Diseño responsive para distintas resoluciones y dispositivos móviles.
 - Audio controlado por un botón de mute y sincronizado con el progreso del juego.
 
@@ -48,6 +49,11 @@ El proyecto combina arte procedimental, música generativa y una interfaz con pa
 - Botones laterales para izquierda, derecha y salto.
 - Botón de inicio para volver a la pantalla de instrucciones.
 - La interfaz se adapta para ratón, lápiz o pantalla táctil.
+
+### Modo Blue-Bot
+- Elige “Modo Blue-Bot” en la pantalla inicial.
+- Añade tarjetas para avanzar, retroceder o girar a izquierda/derecha y pulsa “Go” para ejecutar la secuencia.
+- Recoge el clarinete, oboe, violín, violoncello y clave.
 
 ## 🚀 Cómo ejecutar el juego
 
