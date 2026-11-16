@@ -165,8 +165,9 @@
             background: linear-gradient(145deg, #a7f3d0, #fef3c7);
         }
         .bluebot-instrument-icon {
-            font-size: clamp(1.2rem, 5vw, 2rem);
-            line-height: 1;
+            display: block;
+            width: clamp(2.4rem, 8vw, 3.25rem);
+            height: clamp(2.4rem, 8vw, 3.25rem);
         }
         .bluebot-instrument-name {
             max-width: 100%;
@@ -177,15 +178,9 @@
             overflow-wrap: anywhere;
         }
         .bluebot-player-icon {
-            display: grid;
-            width: 2rem;
-            height: 2rem;
-            place-items: center;
-            border: 2px solid #0f172a;
-            border-radius: 50%;
-            background: #fff;
-            font-size: 1.25rem;
-            line-height: 1;
+            display: block;
+            width: clamp(2.8rem, 9vw, 3.5rem);
+            height: clamp(2.8rem, 9vw, 3.5rem);
         }
         .bluebot-sequence-card {
             display: flex;
@@ -427,12 +422,57 @@
         let isAudioInitialized = false;
         let isMuted = false;
         const blueBotInstruments = [
-            { id: 'clarinete', name: 'Clarinete', icon: '🎵', row: 0, column: 0 },
-            { id: 'oboe', name: 'Oboe', icon: '🎶', row: 0, column: 3 },
-            { id: 'violin', name: 'Violín', icon: '🎻', row: 2, column: 3 },
-            { id: 'violoncello', name: 'Violoncello', icon: '🎻', row: 3, column: 2 },
-            { id: 'clave', name: 'Clave', icon: '🎹', row: 2, column: 0 }
+            { id: 'clarinete', name: 'Clarinete', row: 0, column: 0 },
+            { id: 'oboe', name: 'Oboe', row: 0, column: 3 },
+            { id: 'violin', name: 'Violín', row: 2, column: 3 },
+            { id: 'violoncello', name: 'Violoncello', row: 3, column: 2 },
+            { id: 'clave', name: 'Clave', row: 2, column: 0 }
         ];
+        const blueBotInstrumentArtwork = {
+            clarinete: [
+                { tag: 'path', attributes: { d: 'M29 12h6v35h-6z', fill: '#172554', stroke: '#0f172a', 'stroke-width': '2' } },
+                { tag: 'path', attributes: { d: 'M29 47h6l5 8-8 5-8-5z', fill: '#1e293b', stroke: '#0f172a', 'stroke-width': '2', 'stroke-linejoin': 'round' } },
+                { tag: 'path', attributes: { d: 'M29 12l2-8h3l2 8z', fill: '#334155', stroke: '#0f172a', 'stroke-width': '1.5', 'stroke-linejoin': 'round' } },
+                { tag: 'path', attributes: { d: 'M35 19h6M35 27h6M35 35h6M35 43h6', fill: 'none', stroke: '#f8fafc', 'stroke-width': '2', 'stroke-linecap': 'round' } },
+                { tag: 'circle', attributes: { cx: '41', cy: '23', r: '2', fill: '#fbbf24' } },
+                { tag: 'circle', attributes: { cx: '41', cy: '31', r: '2', fill: '#fbbf24' } },
+                { tag: 'circle', attributes: { cx: '41', cy: '39', r: '2', fill: '#fbbf24' } }
+            ],
+            oboe: [
+                { tag: 'path', attributes: { d: 'M29 10h6l3 36 5 10-11 5-11-5 5-10z', fill: '#b45309', stroke: '#78350f', 'stroke-width': '2', 'stroke-linejoin': 'round' } },
+                { tag: 'path', attributes: { d: 'M29 10l1-8h4l1 8', fill: '#7c2d12', stroke: '#78350f', 'stroke-width': '1.5', 'stroke-linejoin': 'round' } },
+                { tag: 'path', attributes: { d: 'M29 15l7 1M30 44l8-1', fill: 'none', stroke: '#fcd34d', 'stroke-width': '2' } },
+                { tag: 'path', attributes: { d: 'M36 21h5M37 29h5M38 37h5M28 24h-4M29 33h-4', fill: 'none', stroke: '#f8fafc', 'stroke-width': '2', 'stroke-linecap': 'round' } },
+                { tag: 'circle', attributes: { cx: '41', cy: '25', r: '2', fill: '#e2e8f0' } },
+                { tag: 'circle', attributes: { cx: '42', cy: '33', r: '2', fill: '#e2e8f0' } }
+            ],
+            violin: [
+                { tag: 'path', attributes: { d: 'M30 24c-7-6-15 0-10 7-5 6-2 15 7 15 2 7 8 7 10 0 9 0 12-9 7-15 5-7-3-13-10-7l-1-9h-5z', fill: '#c2410c', stroke: '#7c2d12', 'stroke-width': '2', 'stroke-linejoin': 'round' } },
+                { tag: 'path', attributes: { d: 'M30 23V7h5v17M29 7h7l-1-4h-5z', fill: '#7c2d12', stroke: '#431407', 'stroke-width': '1.5', 'stroke-linejoin': 'round' } },
+                { tag: 'path', attributes: { d: 'M31 9l2 40M34 9l1 40', fill: 'none', stroke: '#fde68a', 'stroke-width': '1' } },
+                { tag: 'path', attributes: { d: 'M27 34h10M29 39h7', fill: 'none', stroke: '#fef3c7', 'stroke-width': '2', 'stroke-linecap': 'round' } },
+                { tag: 'circle', attributes: { cx: '31', cy: '34', r: '1.4', fill: '#451a03' } },
+                { tag: 'circle', attributes: { cx: '35', cy: '34', r: '1.4', fill: '#451a03' } }
+            ],
+            violoncello: [
+                { tag: 'path', attributes: { d: 'M29 25c-8-7-16 1-10 9-5 8-1 18 8 18 2 8 10 8 12 0 9 0 13-10 8-18 6-8-2-16-10-9l-1-10h-6z', fill: '#92400e', stroke: '#451a03', 'stroke-width': '2.5', 'stroke-linejoin': 'round' } },
+                { tag: 'path', attributes: { d: 'M29 25V6h6v20M28 7h8l-1-4h-6z', fill: '#78350f', stroke: '#451a03', 'stroke-width': '1.5', 'stroke-linejoin': 'round' } },
+                { tag: 'path', attributes: { d: 'M30 8l2 43M33 8l2 43', fill: 'none', stroke: '#fde68a', 'stroke-width': '1' } },
+                { tag: 'path', attributes: { d: 'M27 38h12M29 44h8M32 52v8', fill: 'none', stroke: '#fef3c7', 'stroke-width': '2', 'stroke-linecap': 'round' } },
+                { tag: 'circle', attributes: { cx: '31', cy: '38', r: '1.5', fill: '#451a03' } },
+                { tag: 'circle', attributes: { cx: '35', cy: '38', r: '1.5', fill: '#451a03' } }
+            ],
+            clave: [
+                { tag: 'path', attributes: { d: 'M8 22L52 12v36H8z', fill: '#92400e', stroke: '#451a03', 'stroke-width': '2', 'stroke-linejoin': 'round' } },
+                { tag: 'path', attributes: { d: 'M11 20l39-9v5l-39 9z', fill: '#fbbf24', stroke: '#78350f', 'stroke-width': '1.5', 'stroke-linejoin': 'round' } },
+                { tag: 'path', attributes: { d: 'M13 29l34-7M13 35l34-7M13 41l34-7', fill: 'none', stroke: '#fcd34d', 'stroke-width': '1.2' } },
+                { tag: 'path', attributes: { d: 'M12 43h38v10H12z', fill: '#f8fafc', stroke: '#1e293b', 'stroke-width': '1.5' } },
+                { tag: 'path', attributes: { d: 'M17 43v6M22 43v6M27 43v6M32 43v6M37 43v6M42 43v6M47 43v6', fill: 'none', stroke: '#1e293b', 'stroke-width': '1.2' } },
+                { tag: 'path', attributes: { d: 'M19 43h3v4h-3zM29 43h3v4h-3zM39 43h3v4h-3zM45 43h3v4h-3z', fill: '#1e293b' } },
+                { tag: 'path', attributes: { d: 'M13 54l-2 6M48 54l2 6', fill: 'none', stroke: '#451a03', 'stroke-width': '3', 'stroke-linecap': 'round' } }
+            ]
+        };
+        const blueBotSvgNamespace = 'http://www.w3.org/2000/svg';
         const blueBotCommands = {
             forward: { icon: '⬆', label: 'Avanzar' },
             backward: { icon: '⬇', label: 'Retroceder' },
@@ -680,18 +720,19 @@
                 }
             },
 
-            draw(ctx) {
+            draw(ctx, level = currentLevel, rotation = 0, drawCamera = camera) {
                 // Efecto de parpadeo si es invulnerable
                 if (this.invulnerable > 0 && Math.floor(Date.now() / 100) % 2 === 0) return; 
 
                 ctx.save();
                 
                 // Coordenadas relativas a la cámara
-                const screenX = this.x - camera.x;
-                const screenY = this.y - camera.y;
+                const screenX = this.x - drawCamera.x;
+                const screenY = this.y - drawCamera.y;
 
                 // Trasladar origen al centro del jugador para aplicar rotaciones/escalas
                 ctx.translate(screenX + this.w/2, screenY + this.h/2);
+                ctx.rotate(rotation);
                 
                 // Voltear horizontalmente si mira a la izquierda
                 if (!this.facingRight) {
@@ -702,7 +743,7 @@
                 const cx = -this.w/2;
                 const cy = -this.h/2;
 
-                if (currentLevel === 2) {
+                if (level === 2) {
                     // DIBUJO: SUBMARINO BLUE-BOT (Con Falla dentro)
                     
                     // Cuerpo azul del submarino
@@ -1408,6 +1449,44 @@
             document.getElementById('lives').innerText = lives;
         }
 
+        function createBlueBotInstrumentIcon(instrumentId) {
+            const svg = document.createElementNS(blueBotSvgNamespace, 'svg');
+            svg.classList.add('bluebot-instrument-icon');
+            svg.setAttribute('viewBox', '0 0 64 64');
+            svg.setAttribute('aria-hidden', 'true');
+            for (const shape of blueBotInstrumentArtwork[instrumentId]) {
+                const element = document.createElementNS(blueBotSvgNamespace, shape.tag);
+                for (const [attribute, value] of Object.entries(shape.attributes)) {
+                    element.setAttribute(attribute, value);
+                }
+                svg.append(element);
+            }
+            return svg;
+        }
+
+        function createBlueBotCharacterIcon(direction) {
+            const sprite = document.createElement('canvas');
+            sprite.className = 'bluebot-player-icon';
+            sprite.width = 64;
+            sprite.height = 64;
+            sprite.setAttribute('aria-hidden', 'true');
+            const spriteContext = sprite.getContext('2d');
+            spriteContext.translate(32, 32);
+            spriteContext.scale(0.62, 0.62);
+            spriteContext.translate(-32, -32);
+            const blueBotCharacter = {
+                x: 2,
+                y: 7,
+                w: 60,
+                h: 50,
+                facingRight: true,
+                invulnerable: 0
+            };
+            const rotation = (direction - 1) * Math.PI / 2;
+            player.draw.call(blueBotCharacter, spriteContext, 2, rotation, { x: 0, y: 0 });
+            return sprite;
+        }
+
         function renderBlueBotMode() {
             const grid = document.getElementById('bluebot-grid');
             const collectedList = document.getElementById('bluebot-collected');
@@ -1431,9 +1510,7 @@
                     );
 
                     if (instrument) {
-                        const icon = document.createElement('span');
-                        icon.className = 'bluebot-instrument-icon';
-                        icon.textContent = instrument.icon;
+                        const icon = createBlueBotInstrumentIcon(instrument.id);
                         const name = document.createElement('span');
                         name.className = 'bluebot-instrument-name';
                         name.textContent = instrument.name;
@@ -1441,18 +1518,11 @@
                     }
 
                     if (hasPlayer) {
-                        const playerIcon = document.createElement('span');
-                        playerIcon.className = 'bluebot-player-icon';
-                        playerIcon.textContent = '🚤';
-                        const direction = document.createElement('span');
-                        direction.textContent = '⬆';
-                        direction.setAttribute('aria-hidden', 'true');
-                        direction.style.transform = `rotate(${blueBot.direction * 90}deg)`;
-                        direction.style.fontSize = '0.8rem';
+                        const playerIcon = createBlueBotCharacterIcon(blueBot.direction);
                         const name = document.createElement('span');
                         name.className = 'bluebot-instrument-name';
                         name.textContent = 'Falla';
-                        cell.append(playerIcon, direction, name);
+                        cell.append(playerIcon, name);
                     }
 
                     grid.append(cell);
