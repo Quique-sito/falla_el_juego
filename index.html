@@ -560,7 +560,7 @@
             damageSynth.volume.value = -5;
 
             isAudioInitialized = true;
-            playBGM();
+            if (GAME_STATE !== 'BLUEBOT') playBGM();
         }
 
         function updateSoundButton() {
@@ -596,6 +596,14 @@
                     damageSynth.triggerAttackRelease("C2", "8n", now);
                 } else if (type === 'milestone') {
                     synth.triggerAttackRelease(["C4", "E4", "G4", "C5"], "2n", now);
+                } else if (type === 'bluebot-move') {
+                    jumpSynth.triggerAttackRelease("D5", "32n", now);
+                } else if (type === 'bluebot-collect') {
+                    coinSynth.triggerAttackRelease("G5", "16n", now);
+                    coinSynth.triggerAttackRelease("C6", "16n", now + 0.1);
+                } else if (type === 'bluebot-victory') {
+                    synth.triggerAttackRelease(["C4", "E4", "G4", "C5"], "8n", now);
+                    synth.triggerAttackRelease(["E4", "G4", "C5", "E5"], "2n", now + 0.15);
                 }
             } catch (error) {
                 console.warn("Sonido omitido por colisión temporal:", error);
@@ -1700,6 +1708,7 @@
             }
 
             document.getElementById('bluebot-victory').classList.remove('hidden');
+            playSound('bluebot-victory');
             document.getElementById('btn-bluebot-victory-replay').focus();
         }
 
@@ -1848,6 +1857,7 @@
 
             blueBot.row = nextRow;
             blueBot.column = nextColumn;
+            playSound('bluebot-move');
             const instrument = blueBotInstruments.find(item =>
                 blueBot.instrumentPositions[item.id].row === blueBot.row &&
                 blueBot.instrumentPositions[item.id].column === blueBot.column &&
@@ -1855,6 +1865,7 @@
             );
             if (instrument) {
                 blueBot.collected.add(instrument.id);
+                playSound('bluebot-collect');
                 return `¡Has recogido el instrumento: ${instrument.name}!`;
             }
             return command === 'backward' ? 'Falla retrocede una casilla.' : 'Falla avanza una casilla.';
@@ -2011,12 +2022,17 @@
             if (e.code === 'Space' || e.code === 'Enter') e.preventDefault();
         });
         document.getElementById('btn-start').addEventListener('click', () => startGame(1, false));
-        document.getElementById('btn-bluebot').addEventListener('click', () => {
+        document.getElementById('btn-bluebot').addEventListener('click', async () => {
             keys.right = false;
             keys.left = false;
             keys.up = false;
             resetBlueBotMode();
             setGameState('BLUEBOT');
+            try {
+                await initAudio();
+            } catch (error) {
+                console.warn('No se pudo inicializar el sonido de Blue-Bot:', error);
+            }
         });
         document.getElementById('btn-bluebot-menu').addEventListener('click', returnFromBlueBotToMenu);
         document.querySelectorAll('.bluebot-command').forEach(button => {

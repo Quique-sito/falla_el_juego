@@ -56,6 +56,7 @@ El proyecto combina arte procedimental, música generativa y una interfaz con pa
 - Recoge el clarinete, oboe, violín, violoncello y clave.
 - Los instrumentos cambian de casilla en cada partida; Falla siempre empieza en la esquina inferior izquierda, visto desde arriba.
 - Al recogerlos todos, aparece una ventana de victoria con Falla y los cinco instrumentos.
+- Incluye efectos de sonido al moverse, recoger un instrumento y completar el modo.
 
 ## 🚀 Cómo ejecutar el juego
 
