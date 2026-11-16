@@ -239,6 +239,7 @@
                 </header>
                 <p class="mb-3 text-center text-sm font-semibold text-slate-700 sm:text-base">
                     ⬆ Avanza, ⬇ retrocede según hacia dónde mira Falla; ↻ y ↺ giran. Pulsa <strong>Go</strong> para ejecutar.
+                    Los instrumentos cambian de sitio en cada partida; Falla siempre empieza abajo a la izquierda.
                 </p>
 
                 <div class="mx-auto mb-3 grid w-full max-w-md grid-cols-4 gap-1.5 rounded-xl border-4 border-slate-900 bg-slate-800 p-1.5 sm:gap-2 sm:p-2" id="bluebot-grid" role="grid" aria-label="Cuadrícula Blue-Bot de cuatro por cuatro"></div>
@@ -422,11 +423,11 @@
         let isAudioInitialized = false;
         let isMuted = false;
         const blueBotInstruments = [
-            { id: 'clarinete', name: 'Clarinete', row: 0, column: 0 },
-            { id: 'oboe', name: 'Oboe', row: 0, column: 3 },
-            { id: 'violin', name: 'Violín', row: 2, column: 3 },
-            { id: 'violoncello', name: 'Violoncello', row: 3, column: 2 },
-            { id: 'clave', name: 'Clave', row: 2, column: 0 }
+            { id: 'clarinete', name: 'Clarinete' },
+            { id: 'oboe', name: 'Oboe' },
+            { id: 'violin', name: 'Violín' },
+            { id: 'violoncello', name: 'Violoncello' },
+            { id: 'clave', name: 'Clave' }
         ];
         const blueBotInstrumentArtwork = {
             clarinete: [
@@ -473,6 +474,7 @@
             ]
         };
         const blueBotSvgNamespace = 'http://www.w3.org/2000/svg';
+        const blueBotStart = { row: 3, column: 0 };
         const blueBotCommands = {
             forward: { icon: '⬆', label: 'Avanzar' },
             backward: { icon: '⬇', label: 'Retroceder' },
@@ -480,9 +482,10 @@
             left: { icon: '↺', label: 'Giro izquierda' }
         };
         const blueBot = {
-            row: 3,
-            column: 0,
+            row: blueBotStart.row,
+            column: blueBotStart.column,
             direction: 0,
+            instrumentPositions: null,
             sequence: [],
             collected: new Set(),
             running: false,
@@ -720,19 +723,18 @@
                 }
             },
 
-            draw(ctx, level = currentLevel, rotation = 0, drawCamera = camera) {
+            draw(ctx) {
                 // Efecto de parpadeo si es invulnerable
                 if (this.invulnerable > 0 && Math.floor(Date.now() / 100) % 2 === 0) return; 
 
                 ctx.save();
                 
                 // Coordenadas relativas a la cámara
-                const screenX = this.x - drawCamera.x;
-                const screenY = this.y - drawCamera.y;
+                const screenX = this.x - camera.x;
+                const screenY = this.y - camera.y;
 
                 // Trasladar origen al centro del jugador para aplicar rotaciones/escalas
                 ctx.translate(screenX + this.w/2, screenY + this.h/2);
-                ctx.rotate(rotation);
                 
                 // Voltear horizontalmente si mira a la izquierda
                 if (!this.facingRight) {
@@ -743,7 +745,7 @@
                 const cx = -this.w/2;
                 const cy = -this.h/2;
 
-                if (level === 2) {
+                if (currentLevel === 2) {
                     // DIBUJO: SUBMARINO BLUE-BOT (Con Falla dentro)
                     
                     // Cuerpo azul del submarino
@@ -1464,6 +1466,141 @@
             return svg;
         }
 
+        function generateBlueBotInstrumentPositions() {
+            const cells = [];
+            for (let row = 0; row < 4; row++) {
+                for (let column = 0; column < 4; column++) {
+                    if (row !== blueBotStart.row || column !== blueBotStart.column) {
+                        cells.push({ row, column });
+                    }
+                }
+            }
+
+            const positions = {};
+            function assignInstrument(index, availableCells) {
+                if (index === blueBotInstruments.length) return true;
+
+                const instrument = blueBotInstruments[index];
+                const previousPosition = blueBot.instrumentPositions?.[instrument.id];
+                const choices = availableCells.filter(cell =>
+                    !previousPosition ||
+                    cell.row !== previousPosition.row ||
+                    cell.column !== previousPosition.column
+                );
+                for (let i = choices.length - 1; i > 0; i--) {
+                    const randomIndex = Math.floor(Math.random() * (i + 1));
+                    [choices[i], choices[randomIndex]] = [choices[randomIndex], choices[i]];
+                }
+
+                for (const cell of choices) {
+                    positions[instrument.id] = cell;
+                    const remainingCells = availableCells.filter(candidate => candidate !== cell);
+                    if (assignInstrument(index + 1, remainingCells)) return true;
+                }
+                return false;
+            }
+
+            if (!assignInstrument(0, cells)) {
+                throw new Error('No se pudieron asignar casillas distintas a los instrumentos de Blue-Bot.');
+            }
+            return positions;
+        }
+
+        function drawBlueBotTopDown(ctx, direction) {
+            ctx.save();
+            ctx.translate(32, 32);
+            ctx.rotate((direction - 1) * Math.PI / 2);
+            ctx.scale(0.88, 0.88);
+            ctx.translate(-32, -32);
+
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.2)';
+            ctx.beginPath();
+            ctx.ellipse(32, 35, 27, 17, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#1d4ed8';
+            ctx.strokeStyle = '#1e3a8a';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(12, 24);
+            ctx.lineTo(4, 17);
+            ctx.lineTo(7, 31);
+            ctx.lineTo(4, 47);
+            ctx.lineTo(13, 40);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#3b82f6';
+            ctx.beginPath();
+            ctx.ellipse(32, 32, 25, 16, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#60a5fa';
+            ctx.beginPath();
+            ctx.ellipse(32, 32, 19, 11, 0, -Math.PI / 2, Math.PI / 2);
+            ctx.fill();
+
+            ctx.save();
+            ctx.translate(7, 32);
+            ctx.fillStyle = '#fbbf24';
+            for (let blade = 0; blade < 3; blade++) {
+                ctx.rotate(Math.PI * 2 / 3);
+                ctx.beginPath();
+                ctx.ellipse(0, -5, 2.5, 5, 0, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.beginPath();
+            ctx.arc(0, 0, 3, 0, Math.PI * 2);
+            ctx.fillStyle = '#f59e0b';
+            ctx.fill();
+            ctx.restore();
+
+            ctx.fillStyle = 'rgba(224, 242, 254, 0.88)';
+            ctx.strokeStyle = '#bae6fd';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.ellipse(37, 32, 10, 12, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#f5cba7';
+            ctx.beginPath();
+            ctx.ellipse(38, 32, 6, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#4a4a4a';
+            ctx.beginPath();
+            ctx.ellipse(35, 27.5, 5, 3.5, -0.15, Math.PI, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = '#222';
+            ctx.lineWidth = 1.2;
+            ctx.beginPath();
+            ctx.arc(36, 31, 2.2, 0, Math.PI * 2);
+            ctx.arc(40, 31, 2.2, 0, Math.PI * 2);
+            ctx.moveTo(38.2, 31);
+            ctx.lineTo(37.8, 31);
+            ctx.stroke();
+            ctx.strokeStyle = '#884444';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(39, 35, 2.5, 0.15, Math.PI - 0.15);
+            ctx.stroke();
+
+            ctx.fillStyle = '#e0f2fe';
+            ctx.strokeStyle = '#1e3a8a';
+            ctx.lineWidth = 1;
+            for (const y of [24, 40]) {
+                ctx.beginPath();
+                ctx.arc(20, y, 2.5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+            }
+
+            ctx.restore();
+        }
+
         function createBlueBotCharacterIcon(direction) {
             const sprite = document.createElement('canvas');
             sprite.className = 'bluebot-player-icon';
@@ -1471,19 +1608,7 @@
             sprite.height = 64;
             sprite.setAttribute('aria-hidden', 'true');
             const spriteContext = sprite.getContext('2d');
-            spriteContext.translate(32, 32);
-            spriteContext.scale(0.62, 0.62);
-            spriteContext.translate(-32, -32);
-            const blueBotCharacter = {
-                x: 2,
-                y: 7,
-                w: 60,
-                h: 50,
-                facingRight: true,
-                invulnerable: 0
-            };
-            const rotation = (direction - 1) * Math.PI / 2;
-            player.draw.call(blueBotCharacter, spriteContext, 2, rotation, { x: 0, y: 0 });
+            drawBlueBotTopDown(spriteContext, direction);
             return sprite;
         }
 
@@ -1497,8 +1622,8 @@
                 for (let column = 0; column < 4; column++) {
                     const cell = document.createElement('div');
                     const instrument = blueBotInstruments.find(item =>
-                        item.row === row &&
-                        item.column === column &&
+                        blueBot.instrumentPositions[item.id].row === row &&
+                        blueBot.instrumentPositions[item.id].column === column &&
                         !blueBot.collected.has(item.id)
                     );
                     const hasPlayer = blueBot.row === row && blueBot.column === column;
@@ -1579,8 +1704,9 @@
 
         function resetBlueBotMode() {
             blueBot.runId++;
-            blueBot.row = 3;
-            blueBot.column = 0;
+            blueBot.instrumentPositions = generateBlueBotInstrumentPositions();
+            blueBot.row = blueBotStart.row;
+            blueBot.column = blueBotStart.column;
             blueBot.direction = 0;
             blueBot.sequence = [];
             blueBot.collected.clear();
@@ -1615,8 +1741,8 @@
             blueBot.row = nextRow;
             blueBot.column = nextColumn;
             const instrument = blueBotInstruments.find(item =>
-                item.row === blueBot.row &&
-                item.column === blueBot.column &&
+                blueBot.instrumentPositions[item.id].row === blueBot.row &&
+                blueBot.instrumentPositions[item.id].column === blueBot.column &&
                 !blueBot.collected.has(item.id)
             );
             if (instrument) {
