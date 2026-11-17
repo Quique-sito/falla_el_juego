@@ -46,8 +46,8 @@ El proyecto combina arte procedimental, música generativa y una interfaz con pa
 - Saltar / nadar: Flecha arriba, W o Barra espaciadora
 
 ### Pantalla táctil
-- Botones laterales para izquierda, derecha y salto.
-- Botón de inicio para volver a la pantalla de instrucciones.
+- Barra inferior con botones cuadrados en este orden: izquierda, salto y derecha.
+- Botón de inicio a la izquierda y control de sonido a la derecha.
 - La interfaz se adapta para ratón, lápiz o pantalla táctil.
 
 ### Modo Blue-Bot
