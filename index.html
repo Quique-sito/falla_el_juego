@@ -1693,7 +1693,7 @@
             const characterCanvas = document.getElementById('bluebot-victory-character');
             const characterContext = characterCanvas.getContext('2d');
             characterContext.clearRect(0, 0, characterCanvas.width, characterCanvas.height);
-            drawBlueBotTopDown(characterContext, blueBot.direction, true);
+            drawBlueBotTopDown(characterContext, 1, true);
 
             const instrumentsList = document.getElementById('bluebot-victory-instruments');
             instrumentsList.replaceChildren();
