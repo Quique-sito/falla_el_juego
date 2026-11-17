@@ -68,7 +68,7 @@ Este proyecto no requiere compilación ni dependencias locales. Basta con abrir 
 2. Abre el archivo `index.html` en tu navegador.
 3. Haz clic en “¡COMENZAR AVENTURA!” para iniciar.
 
-Nota: para que el audio funcione correctamente, el navegador debe permitir la inicialización del contexto de audio tras la interacción del usuario. Si se carga desde un entorno con bloqueo de contenido, el sonido puede requerir un primer clic en la pantalla.
+Nota: para que el audio funcione correctamente, el navegador debe permitir la inicialización del contexto de audio tras la interacción del usuario. Si se carga desde un entorno con bloqueo de contenido, el sonido puede requerir un primer clic en la pantalla. Si se pausa en un móvil, pulsa el botón de sonido para reanudarlo.
 
 ## 🛠️ Tecnologías utilizadas
 

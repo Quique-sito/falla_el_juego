@@ -489,6 +489,7 @@
             3: 'audio/nivel_3-atlantida.mp3'
         };
         let isAudioInitialized = false;
+        let audioInitializationPromise = null;
         let isMuted = false;
         const blueBotInstruments = [
             { id: 'clarinete', name: 'Clarinete' },
@@ -561,13 +562,22 @@
             executingStep: -1
         };
 
-        async function initAudio() {
-            if (isAudioInitialized) return;
+        function initAudio() {
+            if (isAudioInitialized) return Promise.resolve();
+            if (!audioInitializationPromise) {
+                audioInitializationPromise = initializeAudio().finally(() => {
+                    audioInitializationPromise = null;
+                });
+            }
+            return audioInitializationPromise;
+        }
+
+        async function initializeAudio() {
             await Tone.start();
 
             masterVolume = new Tone.Volume(0).toDestination();
             masterVolume.mute = isMuted;
-            
+
             // Música de fondo
             synth = new Tone.PolySynth(Tone.Synth, {
                 envelope: { attack: 0.05, decay: 0.2, sustain: 0.1, release: 1 }
@@ -2067,6 +2077,8 @@
         function toggleSound() {
             isMuted = !isMuted;
             updateSoundButton();
+            const audioStart = isAudioInitialized ? Tone.start() : initAudio();
+            audioStart.catch(error => console.warn('No se pudo activar el sonido:', error));
         }
         for (const buttonId of ['btn-sound', 'btn-bluebot-sound']) {
             const soundButton = document.getElementById(buttonId);
