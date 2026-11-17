@@ -197,6 +197,12 @@
             line-height: 1.05;
             overflow-wrap: anywhere;
         }
+        .bluebot-vowel {
+            color: #dc2626;
+        }
+        .bluebot-consonant {
+            color: #1d4ed8;
+        }
         .bluebot-player-icon {
             display: block;
             width: clamp(2.8rem, 9vw, 3.5rem);
@@ -1540,6 +1546,20 @@
             return svg;
         }
 
+        function createBlueBotInstrumentLabel(name, className = 'bluebot-instrument-name') {
+            const label = document.createElement('span');
+            label.className = className;
+            for (const letter of name.toLocaleUpperCase('es')) {
+                const character = document.createElement('span');
+                character.className = /[AEIOUÁÉÍÓÚÜ]/.test(letter)
+                    ? 'bluebot-vowel'
+                    : 'bluebot-consonant';
+                character.textContent = letter;
+                label.append(character);
+            }
+            return label;
+        }
+
         function generateBlueBotInstrumentPositions() {
             const cells = [];
             for (let row = 0; row < 4; row++) {
@@ -1731,10 +1751,7 @@
                 card.className = 'flex flex-col items-center justify-center rounded-xl border-2 border-amber-700 bg-amber-50 p-2';
                 card.setAttribute('role', 'listitem');
                 card.append(createBlueBotInstrumentIcon(instrument.id));
-                const name = document.createElement('span');
-                name.className = 'bluebot-instrument-name';
-                name.textContent = instrument.name;
-                card.append(name);
+                card.append(createBlueBotInstrumentLabel(instrument.name));
                 instrumentsList.append(card);
             }
 
@@ -1771,10 +1788,7 @@
 
                     if (instrument) {
                         const icon = createBlueBotInstrumentIcon(instrument.id);
-                        const name = document.createElement('span');
-                        name.className = 'bluebot-instrument-name';
-                        name.textContent = instrument.name;
-                        cell.append(icon, name);
+                        cell.append(icon, createBlueBotInstrumentLabel(instrument.name));
                     }
 
                     if (hasPlayer) {
@@ -1794,7 +1808,10 @@
                 const tag = document.createElement('span');
                 const isCollected = blueBot.collected.has(instrument.id);
                 tag.className = `rounded-full border px-2 py-1 text-xs font-bold ${isCollected ? 'border-green-700 bg-green-100 text-green-900' : 'border-slate-400 bg-white text-slate-500'}`;
-                tag.textContent = `${isCollected ? '✓' : '○'} ${instrument.name}`;
+                tag.append(
+                    document.createTextNode(`${isCollected ? '✓' : '○'} `),
+                    createBlueBotInstrumentLabel(instrument.name, 'bluebot-colored-instrument-name')
+                );
                 collectedList.append(tag);
             }
 
