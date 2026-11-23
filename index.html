@@ -184,6 +184,118 @@
         .bluebot-cell-player.bluebot-cell-instrument {
             background: linear-gradient(145deg, #a7f3d0, #fef3c7);
         }
+        .bluebot-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 0.5rem;
+        }
+        .bluebot-board-column,
+        .bluebot-controls-column {
+            min-width: 0;
+        }
+        .bluebot-controls-column {
+            display: grid;
+            align-content: start;
+            gap: 0.5rem;
+        }
+        .bluebot-action-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 0.5rem;
+        }
+        .bluebot-collected-panel,
+        .bluebot-command-grid,
+        .bluebot-sequence-panel {
+            margin-bottom: 0;
+        }
+        .bluebot-collected-panel {
+            padding: 0.4rem;
+        }
+        .bluebot-collected-panel h3 {
+            margin-bottom: 0.25rem;
+            font-size: 0.75rem;
+            line-height: 1.1;
+        }
+        .bluebot-collected-panel #bluebot-collected {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 0.25rem;
+        }
+        .bluebot-collected-panel #bluebot-collected > span {
+            min-width: 0;
+            justify-content: center;
+            padding: 0.15rem 0.2rem;
+        }
+        .bluebot-colored-instrument-name {
+            font-size: 0.6rem;
+            line-height: 1.15;
+        }
+        .bluebot-command-grid {
+            gap: 0.35rem;
+        }
+        .bluebot-command {
+            min-height: 3rem;
+            padding: 0.25rem 0.15rem;
+            line-height: 1.1;
+        }
+        .bluebot-command .bluebot-command-icon {
+            font-size: 1.25rem;
+            line-height: 1.1;
+        }
+        .bluebot-command .bluebot-command-label {
+            font-size: 0.65rem;
+            line-height: 1.1;
+        }
+        .bluebot-sequence-panel {
+            padding: 0.4rem;
+        }
+        .bluebot-sequence-panel-header {
+            margin-bottom: 0.25rem;
+        }
+        .bluebot-sequence-panel-header h3 {
+            font-size: 0.85rem;
+            line-height: 1.1;
+        }
+        .bluebot-sequence-panel-header button {
+            padding: 0.2rem 0.4rem;
+            font-size: 0.65rem;
+        }
+        .bluebot-sequence-list {
+            min-height: 2rem;
+        }
+        .bluebot-sequence-list > li {
+            font-size: 0.68rem;
+            line-height: 1.1;
+        }
+        .bluebot-status {
+            min-height: 1.25rem;
+            margin-bottom: 0;
+            font-size: 0.7rem;
+            line-height: 1.1;
+        }
+        .bluebot-footer-controls {
+            gap: 0.5rem;
+        }
+        .bluebot-footer-controls button {
+            min-height: 2.75rem;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.9rem;
+        }
+        .bluebot-footer-controls #btn-bluebot-go {
+            font-size: 1.1rem;
+        }
+        .bluebot-intro {
+            font-size: 0.8rem;
+            line-height: 1.2;
+        }
+        #screen-bluebot .bluebot-intro {
+            margin-bottom: 0.5rem;
+        }
+        .bluebot-header-title {
+            font-size: clamp(1rem, 4.5vw, 1.5rem);
+            line-height: 1.1;
+            white-space: nowrap;
+        }
         .bluebot-instrument-icon {
             display: block;
             width: clamp(2.4rem, 8vw, 3.25rem);
@@ -225,6 +337,64 @@
             border-color: #16a34a;
             background: #bbf7d0;
             box-shadow: 0 0 0 2px #16a34a;
+        }
+        @media (min-width: 360px) {
+            .bluebot-layout .bluebot-command-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+        @media (min-width: 900px) {
+            .bluebot-layout {
+                grid-template-columns: minmax(28rem, 0.9fr) minmax(0, 1.1fr);
+                align-items: start;
+                gap: 1.5rem;
+            }
+            .bluebot-board-column {
+                padding-top: 0.5rem;
+            }
+            .bluebot-controls-column {
+                gap: 0.75rem;
+            }
+            .bluebot-action-grid {
+                gap: 0.75rem;
+            }
+            .bluebot-collected-panel,
+            .bluebot-sequence-panel {
+                padding: 0.75rem;
+            }
+            .bluebot-collected-panel h3 {
+                font-size: 0.9rem;
+            }
+            .bluebot-colored-instrument-name {
+                font-size: 0.75rem;
+            }
+            .bluebot-command {
+                min-height: 3.75rem;
+                padding: 0.5rem 0.35rem;
+            }
+            .bluebot-command .bluebot-command-icon {
+                font-size: 1.5rem;
+            }
+            .bluebot-command .bluebot-command-label {
+                font-size: 0.75rem;
+            }
+            .bluebot-sequence-list {
+                min-height: 3rem;
+            }
+            .bluebot-header-title {
+                font-size: 2rem;
+            }
+            .bluebot-sequence-panel-header h3 {
+                font-size: 1rem;
+            }
+            .bluebot-sequence-panel-header button {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.75rem;
+            }
+            .bluebot-sequence-list > li,
+            .bluebot-status {
+                font-size: 0.875rem;
+            }
         }
         @keyframes bluebot-victory-wave {
             from { transform: rotate(-5deg) translateY(0); }
@@ -273,10 +443,10 @@
         </div>
 
         <!-- MODO BLUE-BOT -->
-        <div id="screen-bluebot" class="hidden max-h-[calc(100dvh-1rem)] w-full max-w-4xl overflow-y-auto px-3 py-2">
+        <div id="screen-bluebot" class="hidden max-h-[calc(100dvh-1rem)] w-full max-w-6xl overflow-y-auto px-3 py-0">
             <section class="rounded-2xl border-4 border-slate-950 bg-white p-3 shadow-[6px_6px_0px_rgba(0,0,0,0.8)] sm:p-5">
                 <header class="mb-2 flex items-center justify-between gap-2">
-                    <h2 class="comic-font text-2xl text-cyan-700 sm:text-3xl">Modo Blue-Bot</h2>
+                    <h2 class="bluebot-header-title comic-font text-cyan-700">Modo Blue-Bot</h2>
                     <div class="flex shrink-0 items-center gap-2">
                         <button id="btn-bluebot-sound" class="btn-comic hidden h-10 w-10 rounded-lg bg-white text-xl" type="button" aria-label="Quitar sonido" aria-pressed="false" title="Quitar sonido">
                             <span id="bluebot-sound-icon" aria-hidden="true">🔊</span>
@@ -286,52 +456,60 @@
                         </button>
                     </div>
                 </header>
-                <p class="mb-3 text-center text-sm font-semibold text-slate-700 sm:text-base">
-                    ⬆ Avanza, ⬇ retrocede según hacia dónde mira Falla; ↻ y ↺ giran. Pulsa <strong>Go</strong> para ejecutar.
-                    Los instrumentos cambian de sitio en cada partida; Falla siempre empieza abajo a la izquierda.
+                <p class="bluebot-intro mb-3 text-center font-semibold text-slate-700">
+                    ⬆ Avanza, ⬇ retrocede y ↻/↺ giran según hacia dónde mira Falla. Pulsa <strong>Go</strong> para ejecutar.
+                    Falla empieza abajo a la izquierda; los instrumentos cambian de sitio en cada partida.
                 </p>
 
-                <div class="mx-auto mb-3 grid w-full max-w-md grid-cols-4 gap-1.5 rounded-xl border-4 border-slate-900 bg-slate-800 p-1.5 sm:gap-2 sm:p-2" id="bluebot-grid" role="grid" aria-label="Cuadrícula Blue-Bot de cuatro por cuatro"></div>
+                <div class="bluebot-layout">
+                    <div class="bluebot-board-column">
+                        <div class="mx-auto mb-3 grid w-full max-w-md grid-cols-4 gap-1.5 rounded-xl border-4 border-slate-900 bg-slate-800 p-1.5 sm:gap-2 sm:p-2" id="bluebot-grid" role="grid" aria-label="Cuadrícula Blue-Bot de cuatro por cuatro"></div>
+                    </div>
 
-                <div class="mb-3 rounded-xl border-2 border-cyan-800 bg-cyan-50 p-2">
-                    <h3 class="mb-1 text-sm font-bold text-slate-800">Instrumentos recogidos</h3>
-                    <div id="bluebot-collected" class="flex flex-wrap gap-1.5" aria-live="polite"></div>
-                </div>
+                    <div class="bluebot-controls-column">
+                        <div class="bluebot-action-grid">
+                            <div class="bluebot-collected-panel rounded-xl border-2 border-cyan-800 bg-cyan-50">
+                                <h3 class="font-bold text-slate-800">Instrumentos recogidos</h3>
+                                <div id="bluebot-collected" class="flex flex-wrap gap-1.5" aria-live="polite"></div>
+                            </div>
 
-                <div class="mb-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    <button class="bluebot-command btn-comic rounded-lg bg-blue-200 px-2 py-2 font-bold" type="button" data-command="forward" aria-label="Añadir avanzar">
-                        <span class="text-2xl">⬆</span><span class="block text-xs">Avanzar</span>
-                    </button>
-                    <button class="bluebot-command btn-comic rounded-lg bg-blue-200 px-2 py-2 font-bold" type="button" data-command="backward" aria-label="Añadir retroceder">
-                        <span class="text-2xl">⬇</span><span class="block text-xs">Retroceder</span>
-                    </button>
-                    <button class="bluebot-command btn-comic rounded-lg bg-blue-200 px-2 py-2 font-bold" type="button" data-command="right" aria-label="Añadir giro a la derecha">
-                        <span class="text-2xl">↻</span><span class="block text-xs">Girar derecha</span>
-                    </button>
-                    <button class="bluebot-command btn-comic rounded-lg bg-blue-200 px-2 py-2 font-bold" type="button" data-command="left" aria-label="Añadir giro a la izquierda">
-                        <span class="text-2xl">↺</span><span class="block text-xs">Girar izquierda</span>
-                    </button>
-                </div>
+                            <div class="bluebot-command-grid grid grid-cols-2">
+                                <button class="bluebot-command btn-comic rounded-lg bg-blue-200 font-bold" type="button" data-command="forward" aria-label="Añadir avanzar">
+                                    <span class="bluebot-command-icon block">⬆</span><span class="bluebot-command-label block">Avanzar</span>
+                                </button>
+                                <button class="bluebot-command btn-comic rounded-lg bg-blue-200 font-bold" type="button" data-command="backward" aria-label="Añadir retroceder">
+                                    <span class="bluebot-command-icon block">⬇</span><span class="bluebot-command-label block">Retroceder</span>
+                                </button>
+                                <button class="bluebot-command btn-comic rounded-lg bg-blue-200 font-bold" type="button" data-command="right" aria-label="Añadir giro a la derecha">
+                                    <span class="bluebot-command-icon block">↻</span><span class="bluebot-command-label block">Girar derecha</span>
+                                </button>
+                                <button class="bluebot-command btn-comic rounded-lg bg-blue-200 font-bold" type="button" data-command="left" aria-label="Añadir giro a la izquierda">
+                                    <span class="bluebot-command-icon block">↺</span><span class="bluebot-command-label block">Girar izquierda</span>
+                                </button>
+                            </div>
+                        </div>
 
-                <div class="mb-3 rounded-xl border-2 border-slate-800 bg-slate-50 p-2">
-                    <div class="mb-2 flex items-center justify-between gap-2">
-                        <h3 class="font-bold text-slate-800">Secuencia de tarjetas</h3>
-                        <div class="flex gap-2">
-                            <button id="btn-bluebot-undo" class="rounded-md border-2 border-slate-700 bg-white px-2 py-1 text-xs font-bold" type="button">Deshacer</button>
-                            <button id="btn-bluebot-clear" class="rounded-md border-2 border-slate-700 bg-white px-2 py-1 text-xs font-bold" type="button">Borrar</button>
+                        <div class="bluebot-sequence-panel rounded-xl border-2 border-slate-800 bg-slate-50">
+                            <div class="bluebot-sequence-panel-header flex items-center justify-between gap-2">
+                                <h3 class="font-bold text-slate-800">Secuencia de tarjetas</h3>
+                                <div class="flex gap-2">
+                                    <button id="btn-bluebot-undo" class="rounded-md border-2 border-slate-700 bg-white px-2 py-1 text-xs font-bold" type="button">Deshacer</button>
+                                    <button id="btn-bluebot-clear" class="rounded-md border-2 border-slate-700 bg-white px-2 py-1 text-xs font-bold" type="button">Borrar</button>
+                                </div>
+                            </div>
+                            <ol id="bluebot-sequence" class="bluebot-sequence-list flex gap-2 overflow-x-auto py-1" aria-label="Movimientos programados"></ol>
+                        </div>
+
+                        <p id="bluebot-status" class="bluebot-status text-center font-bold text-slate-800" role="status" aria-live="polite"></p>
+                        <div class="bluebot-footer-controls flex flex-wrap justify-center">
+                            <button id="btn-bluebot-go" class="btn-comic rounded-xl border-black bg-green-500 font-bold text-white hover:bg-green-600" type="button">
+                                Go ▶
+                            </button>
+                            <button id="btn-bluebot-reset" class="btn-comic rounded-xl bg-yellow-300 font-bold hover:bg-yellow-400" type="button">
+                                Reiniciar tablero
+                            </button>
                         </div>
                     </div>
-                    <ol id="bluebot-sequence" class="flex min-h-14 gap-2 overflow-x-auto py-1" aria-label="Movimientos programados"></ol>
-                </div>
-
-                <p id="bluebot-status" class="mb-3 min-h-6 text-center text-sm font-bold text-slate-800" role="status" aria-live="polite"></p>
-                <div class="flex flex-wrap justify-center gap-3">
-                    <button id="btn-bluebot-go" class="btn-comic rounded-xl border-black bg-green-500 px-8 py-3 text-xl font-bold text-white hover:bg-green-600" type="button">
-                        Go ▶
-                    </button>
-                    <button id="btn-bluebot-reset" class="btn-comic rounded-xl bg-yellow-300 px-4 py-3 font-bold hover:bg-yellow-400" type="button">
-                        Reiniciar tablero
-                    </button>
                 </div>
             </section>
 

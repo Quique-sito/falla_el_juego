@@ -59,6 +59,7 @@ El proyecto combina arte procedimental, música generativa y una interfaz con pa
 - Al recogerlos todos, aparece una ventana de victoria con Falla y los cinco instrumentos.
 - Incluye efectos de sonido al moverse, recoger un instrumento y completar el modo.
 - El control de sonido está junto al botón “Menú” y permite activar o silenciar los efectos.
+- La interfaz de Blue-Bot adapta sus controles y paneles al tamaño de pantalla; la cuadrícula conserva su tamaño y puede ampliarse en pantallas grandes.
 
 ## 🚀 Cómo ejecutar el juego
 
